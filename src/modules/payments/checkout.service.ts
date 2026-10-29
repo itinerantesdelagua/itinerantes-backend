@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppException } from '../../common/errors/app.exception';
 import { type Currency, currencyForCountry, isCurrency } from '../../common/utils/money';
+import { demoStripeBlocked, isDemoEmail, isDemoStripeId } from '../../common/utils/demo';
 import { addMinutes, nowUtc } from '../../common/utils/time';
 import { BUSINESS_RULES } from '../../config/business-rules';
 import { type Env, portalBaseUrl } from '../../config/env.schema';
@@ -450,7 +451,7 @@ export class CheckoutService {
     if (payment.status !== 'PENDING' || payment.method !== 'CARD' || !payment.checkoutExpiresAt) {
       throw new AppException('PAYMENT_INVALID_STATE', { meta: { status: payment.status } });
     }
-    if (!payment.stripeCheckoutSessionId) {
+    if (!payment.stripeCheckoutSessionId || isDemoStripeId(payment.stripeCheckoutSessionId)) {
       await this.ledger.cancelCheckoutPayment(payment.id, 'Pago cancelado por la persona.');
       return;
     }
@@ -465,6 +466,7 @@ export class CheckoutService {
     if (!this.gateway.configured) return;
     const payment = await this.prisma.payment.findUnique({ where: { id: paymentId } });
     if (!payment?.stripeCheckoutSessionId || payment.status !== 'PENDING') return;
+    if (isDemoStripeId(payment.stripeCheckoutSessionId)) return; // datos demo: nunca a Stripe
     const session = await this.gateway.retrieveCheckoutSession(payment.stripeCheckoutSessionId);
     await this.ledger.applyCheckoutSession(session);
   }
@@ -478,6 +480,8 @@ export class CheckoutService {
     });
     let done = 0;
     for (const payment of stale) {
+      // Datos demo (prisma/demo-data.ts): checkout ficticio, no se concilia con Stripe.
+      if (isDemoStripeId(payment.stripeCheckoutSessionId)) continue;
       try {
         if (payment.stripeCheckoutSessionId && this.gateway.configured) {
           const session = await this.gateway.retrieveCheckoutSession(
@@ -509,6 +513,7 @@ export class CheckoutService {
     if (!isActivePlan(plan.status)) {
       throw new AppException('PAYMENT_INVALID_STATE', { meta: { status: plan.status } });
     }
+    if (isDemoStripeId(plan.stripeCustomerId)) throw demoStripeBlocked();
     const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
     const customerId = plan.stripeCustomerId ?? (await this.ensureCustomer(user));
     const now = nowUtc();
@@ -543,6 +548,10 @@ export class CheckoutService {
   }
 
   private async ensureCustomer(user: User): Promise<string> {
+    // Personas demo (prisma/demo-data.ts): nunca crean clientes ni sesiones reales en Stripe.
+    if (isDemoEmail(user.email) || isDemoStripeId(user.stripeCustomerId)) {
+      throw demoStripeBlocked();
+    }
     const id = await this.gateway.ensureCustomer({
       existingId: user.stripeCustomerId,
       userId: user.id,

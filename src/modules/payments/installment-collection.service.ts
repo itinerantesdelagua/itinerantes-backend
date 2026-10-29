@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { AppException } from '../../common/errors/app.exception';
+import { demoStripeBlocked, isDemoStripeId } from '../../common/utils/demo';
 import { addDaysInZone, addMinutes, nowUtc } from '../../common/utils/time';
 import { BUSINESS_RULES } from '../../config/business-rules';
 import type { InstallmentStatus } from '../../generated/prisma/client';
@@ -18,6 +19,14 @@ import { installmentUpcomingMessage } from './policies/payment-messages.policy';
 import { ACTIVE_PLAN_STATUSES, isActivePlan } from './policies/payment-status.policy';
 
 export type ChargeOutcome = 'PAID' | 'FAILED' | 'PROCESSING' | 'SKIPPED';
+
+/** Plan de los datos demo: cliente o tarjeta de Stripe ficticios (`cus_demo_…` / `pm_demo_…`). */
+function isDemoPlan(plan: {
+  stripeCustomerId: string | null;
+  stripePaymentMethodId: string | null;
+}): boolean {
+  return isDemoStripeId(plan.stripeCustomerId) || isDemoStripeId(plan.stripePaymentMethodId);
+}
 
 /**
  * Cobro automático de cuotas (HU-24). DECISIÓN (docs/ARCHITECTURE.md → "Pagos"): plan PROPIO en
@@ -57,6 +66,11 @@ export class InstallmentCollectionService {
       include: { plan: { include: { offer: { select: { name: true } } } } },
     });
     if (!current || !allowFrom.includes(current.status) || !isActivePlan(current.plan.status)) {
+      return { outcome: 'SKIPPED', failureMessage: null };
+    }
+    // Datos demo (prisma/demo-data.ts): tarjeta ficticia, nunca se cobra en Stripe.
+    if (isDemoPlan(current.plan)) {
+      this.logger.debug({ installmentId }, 'Cuota demo: se omite el cobro');
       return { outcome: 'SKIPPED', failureMessage: null };
     }
     const reprocess = current.status === 'PROCESSING';
@@ -174,6 +188,7 @@ export class InstallmentCollectionService {
     if (!isActivePlan(plan.status) || plan.installments.length === 0) {
       throw new AppException('PAYMENT_INVALID_STATE', { meta: { status: plan.status } });
     }
+    if (isDemoPlan(plan)) throw demoStripeBlocked();
     for (const installment of plan.installments) {
       const { outcome, failureMessage } = await this.chargeInstallment(installment.id, ['FAILED']);
       if (outcome === 'FAILED') {

@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { AdminUser } from '../../../common/guards/permissions.guard';
 import { AppException } from '../../../common/errors/app.exception';
 import { paginate, type PaginatedResponseDto } from '../../../common/dto/pagination.dto';
+import { assertNotDemoStripe } from '../../../common/utils/demo';
 import { nowUtc } from '../../../common/utils/time';
 import { BUSINESS_RULES } from '../../../config/business-rules';
 import { Permission } from '../../../config/permissions';
@@ -326,6 +327,8 @@ export class AdminPaymentsService {
         meta: { status: payment.status, refundableCents: decision.refundableCents },
       });
     }
+    // Datos demo (prisma/demo-data.ts): el cobro es ficticio, no se reembolsa en Stripe.
+    if (decision.via === 'GATEWAY') assertNotDemoStripe(payment.stripePaymentIntentId);
     if (decision.via === 'GATEWAY' && !this.gateway.configured) {
       throw new AppException('PAYMENTS_NOT_CONFIGURED');
     }

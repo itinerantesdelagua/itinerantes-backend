@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { DEMO_EMAIL_DOMAIN } from '../common/utils/demo';
 
 /**
  * Esquema de variables de entorno. Se valida al arrancar (ConfigModule.validate):
@@ -96,6 +97,20 @@ export const envSchema = z
     MAIL_TEAM_INBOX: optionalString,
     /** Buzón que recibe los mensajes de Contacto (HU-38). Si falta, se usa MAIL_TEAM_INBOX. */
     CONTACT_INBOX_EMAIL: optionalString,
+    /**
+     * Dominios a los que NUNCA se envía correo (coma). Por defecto el dominio de los datos de
+     * demostración (`prisma/demo-data.ts`): sus notificaciones quedan como enviadas sin salir.
+     * Cadena vacía = no suprimir ninguno.
+     */
+    MAIL_SUPPRESS_DOMAINS: z
+      .string()
+      .default(DEMO_EMAIL_DOMAIN)
+      .transform((value) =>
+        value
+          .split(',')
+          .map((item) => item.trim().toLowerCase())
+          .filter(Boolean),
+      ),
 
     // --- Anti-spam / privacidad ---
     /** Clave secreta de Cloudflare Turnstile. Si falta, la verificación de captcha está desactivada. */

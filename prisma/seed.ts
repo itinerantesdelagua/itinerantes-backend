@@ -35,6 +35,7 @@ import { buildImportantDates } from '../src/modules/offers/policies/important-da
 import { cdmxDate, parseScheduleRule } from '../src/modules/offers/policies/schedule-rule';
 import { generateSessions } from '../src/modules/offers/policies/session-generation.policy';
 import { bootstrapMessage, bootstrapSuperAdmin } from './bootstrap-admin';
+import { purgeDemoData, seedDemoData } from './demo-data';
 import { COUNTRIES } from './data/countries';
 import { DEMO_APPLICATIONS } from './data/demo-applications';
 import { DEMO_OFFERS, DEMO_TEACHERS } from './data/demo-offers';
@@ -757,6 +758,29 @@ async function seedVerifyEmails(prisma: PrismaClient): Promise<void> {
   );
 }
 
+/**
+ * Datos de DEMOSTRACIÓN para enseñar la plataforma (prisma/demo-data.ts): DEMO_DATA_ACTION=seed los
+ * crea (idempotente: si ya existen no hace nada) y DEMO_DATA_ACTION=purge borra SOLO lo marcado como
+ * demo. Vacío o cualquier otro valor = no hace nada. Un fallo se registra pero NO impide arrancar
+ * (la transacción se revierte completa). Quita la variable al terminar (docs/DEPLOY.md, sección 10).
+ */
+async function seedDemoDataAction(prisma: PrismaClient): Promise<void> {
+  const action = (process.env.DEMO_DATA_ACTION ?? '').trim().toLowerCase();
+  if (action !== 'seed' && action !== 'purge') {
+    console.log('  DEMO_DATA_ACTION vacío: no se tocan los datos de demostración.');
+    return;
+  }
+  try {
+    if (action === 'seed') await seedDemoData(prisma);
+    else await purgeDemoData(prisma);
+  } catch (error) {
+    console.error(
+      `  DEMO_DATA_ACTION=${action} falló (sin cambios, la transacción se revirtió):`,
+      error,
+    );
+  }
+}
+
 /** Cifras de la landing: crea las que falten, nunca pisa lo editado en el panel (seguro en producción). */
 async function seedSiteMetrics(prisma: PrismaClient): Promise<void> {
   const { count } = await prisma.siteMetric.createMany({
@@ -798,6 +822,7 @@ const seeders: Array<[name: string, run: Seeder]> = [
   ['Fase 03 — portal demo', seedDemoPortal],
   ['Fase 04 — postulaciones demo', seedDemoApplications],
   ['Fase 05 — pagos y Moodle demo', seedDemoPayments],
+  ['Demo — datos de demostración (DEMO_DATA_ACTION)', seedDemoDataAction],
 ];
 
 async function main(): Promise<void> {

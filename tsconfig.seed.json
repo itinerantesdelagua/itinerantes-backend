@@ -8,6 +8,6 @@
     "declaration": false,
     "sourceMap": false
   },
-  "include": ["prisma/seed.ts", "prisma/create-admin.ts", "prisma/verify-users.ts", "prisma/data/**/*.ts"],
+  "include": ["prisma/seed.ts", "prisma/create-admin.ts", "prisma/verify-users.ts", "prisma/demo-data.ts", "prisma/data/**/*.ts"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
 }

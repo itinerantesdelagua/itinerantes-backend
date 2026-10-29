@@ -10,7 +10,8 @@ export interface MailMessage {
 export interface MailSendResult {
   /** Id del proveedor (si lo hay). */
   messageId?: string;
-  driver: MailDriverName;
+  /** `suppressed`: no se envió porque todos los destinatarios son de MAIL_SUPPRESS_DOMAINS. */
+  driver: MailDriverName | 'suppressed';
 }
 
 export type MailDriverName = 'console' | 'smtp' | 'resend';

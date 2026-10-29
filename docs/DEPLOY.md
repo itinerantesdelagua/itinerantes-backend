@@ -352,3 +352,59 @@ servicio no puede crear salas de Meet).
 Notas: el enlace de Meet es el mismo para anfitrión y participantes (`hostUrl` = `joinUrl`). Las
 entrevistas (HU-31) solo aceptan enlaces de zoom.us: para ellas usa Zoom. Guarda la llave solo en las
 variables de Railway; si se filtra, elimínala en la cuenta de servicio y crea otra.
+
+## 10. Datos de demostración (para enseñar la plataforma)
+
+`prisma/demo-data.ts` llena la plataforma con datos **ficticios pero realistas** (fechas relativas al
+día en que se cargan) y los borra después **por completo**. No envía correos ni llama a Stripe: todo
+se inserta directo en la BD, en una sola transacción (todo o nada).
+
+**Qué crea:** 60 personas participantes (`*@demo.itinerantesdelagua.com`, contraseña `Demo2026agua`;
+2 sin verificar y 1 deshabilitada), 4 ofertas nuevas con slug `demo-` (diplomado en curso con becas y
+cuotas, curso en curso, curso finalizado y curso de origen Moodle) con módulos, recursos, sesiones
+pasadas (con grabación y asistencia) y próximas (una reprogramada y una cancelada); ~85 inscripciones,
+~34 postulaciones en todos los estados (evaluaciones del comité real, entrevistas, decisiones, notas
+de seguimiento), ~63 pagos (tarjeta, transferencias validada/pendiente/rechazada, reembolso parcial,
+checkout abandonado), 6 planes de cuotas (al día, completados, con cobro fallido y en mora con acceso
+suspendido), ~360 notificaciones, listas y códigos Moodle, 15 mensajes de Contacto y registros de
+auditoría (`demo-data`). Las ofertas demo del seed (`SEED_DEMO_DATA`) se reutilizan si existen
+(inscripciones/postulaciones/pagos de personas demo), sin agregarles sesiones ni módulos.
+
+**Cómo se identifica para borrar (marcadores):** correo del dominio demo (solo cuentas con rol
+PARTICIPANT), ofertas con slug `demo-`, correos de Contacto/listas Moodle del dominio demo,
+`actorEmail = 'demo-data'` en auditoría, ids de Stripe `cs_demo_` / `pi_demo_` / `ch_demo_` /
+`cus_demo_` / `pm_demo_` / `re_demo_` y `stripe_events` `evt_demo_…`. Nunca borra cuentas del equipo
+ni datos sin marcador. Detalle en la cabecera de `prisma/demo-data.ts`.
+
+**Salvaguardas en la app (src/common/utils/demo.ts):**
+- Correo: `MAIL_SUPPRESS_DOMAINS` (por defecto `demo.itinerantesdelagua.com`) — nunca se envía a esos
+  dominios; la notificación queda `SENT` (`driver: 'suppressed'`).
+- Stripe: el job de cuotas omite los planes demo; la conciliación de checkouts omite los `cs_demo_`;
+  [Reintentar cobro], [Pagar ahora], [Actualizar tarjeta], reembolsos con tarjeta y el checkout de una
+  persona demo responden `422 BUSINESS_RULE_VIOLATION` "Dato de demostración: no se envía a Stripe."
+
+### Cargar en producción (sin acceso directo a la BD)
+
+1. Railway → Service → Variables: `DEMO_DATA_ACTION=seed` → **Redeploy**.
+2. En los logs del arranque busca `Seed: Demo — datos de demostración (DEMO_DATA_ACTION)...` y el
+   conteo por entidad. Si ya había datos demo dice "no se siembra de nuevo" (idempotente).
+3. **Borra la variable** `DEMO_DATA_ACTION` (si se queda en `seed` no pasa nada, pero no la dejes).
+
+### Borrar al terminar la demo
+
+1. `DEMO_DATA_ACTION=purge` → **Redeploy**.
+2. En los logs verás `<tabla>: N borradas` por tabla (o "No hay datos demo que borrar").
+3. **Borra la variable** `DEMO_DATA_ACTION`.
+
+Un fallo de `seed`/`purge` se registra en el log y **no impide arrancar** (la transacción se revierte
+entera). Local: `pnpm demo:seed`, `pnpm demo:purge`, `pnpm demo:counts` (imprimen el antes/después por
+tabla); en la imagen: `node dist/seed/prisma/demo-data.js seed|purge`.
+
+**Limitaciones de la demo:** los comprobantes de transferencia tienen una key de storage ficticia (no
+se sube ningún archivo): en el panel, "Ver comprobante" genera la URL pero el archivo no existe. Las
+grabaciones y los enlaces de Zoom/Meet/WhatsApp son ficticios (no abren una reunión real). No hay
+entregas de proyecto final ni evidencias en archivo (las postulaciones usan enlaces de imagen). Los
+recibos PDF sí funcionan (se generan al vuelo). Los jobs (con `SCHEDULER_ENABLED=true`) siguen
+operando sobre los datos demo como sobre los reales (p. ej. vencen plazos o avisan cuotas próximas),
+sin correo ni Stripe. Si alguien del equipo actúa sobre datos demo, sus registros de auditoría sobre
+esas filas también se borran en la purga.

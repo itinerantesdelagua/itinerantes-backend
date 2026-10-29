@@ -33,6 +33,11 @@
     "admin:create:prod": "node dist/seed/prisma/create-admin.js",
     "users:verify": "ts-node --transpile-only prisma/verify-users.ts",
     "users:verify:prod": "node dist/seed/prisma/verify-users.js",
+    "demo:seed": "ts-node --transpile-only prisma/demo-data.ts seed",
+    "demo:purge": "ts-node --transpile-only prisma/demo-data.ts purge",
+    "demo:counts": "ts-node --transpile-only prisma/demo-data.ts counts",
+    "demo:seed:prod": "node dist/seed/prisma/demo-data.js seed",
+    "demo:purge:prod": "node dist/seed/prisma/demo-data.js purge",
     "db:reset": "prisma migrate reset --force",
     "db:studio": "prisma studio"
   },
