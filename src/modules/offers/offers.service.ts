@@ -49,7 +49,12 @@ import {
 import { OFFER_SCHOLARSHIP_TYPES_RELATION } from '../scholarship-types/scholarship-type.select';
 import { ScholarshipTypesService } from '../scholarship-types/scholarship-types.service';
 import type { OfferQuotaState } from '../scholarship-types/policies/scholarship-quota.policy';
-import { cdmxDate, firstOccurrence, safeParseScheduleRule } from './policies/schedule-rule';
+import {
+  cdmxDate,
+  firstOccurrence,
+  hasUniformTimes,
+  safeParseScheduleRule,
+} from './policies/schedule-rule';
 import { resolveViewerCurrency, type ViewerCurrency } from './policies/viewer-currency.policy';
 
 /**
@@ -484,14 +489,19 @@ function toPricing(row: PublicOfferRow, viewer: ViewerCurrency): OfferPricingDto
 function toSchedule(row: PublicOfferRow): OfferScheduleDto | null {
   const rule = safeParseScheduleRule(row.scheduleRule);
   if (!rule) return null;
-  const first = row.startsAt ? firstOccurrence(rule, cdmxDate(row.startsAt)) : null;
+  const from = row.startsAt ? cdmxDate(row.startsAt) : null;
+  const utc = (o: { startsAt: Date; endsAt: Date } | null) =>
+    o ? { startsAt: o.startsAt.toISOString(), endsAt: o.endsAt.toISOString() } : null;
   return {
     timezone: OFFICIAL_TIMEZONE,
     weekdays: rule.weekdays,
     startTime: rule.startTime,
     endTime: rule.endTime,
-    firstSession: first
-      ? { startsAt: first.startsAt.toISOString(), endsAt: first.endsAt.toISOString() }
-      : null,
+    sameTimeAllDays: hasUniformTimes(rule),
+    slots: rule.slots.map((slot) => ({
+      ...slot,
+      firstSession: from ? utc(firstOccurrence(rule, from, OFFICIAL_TIMEZONE, slot.weekday)) : null,
+    })),
+    firstSession: from ? utc(firstOccurrence(rule, from)) : null,
   };
 }

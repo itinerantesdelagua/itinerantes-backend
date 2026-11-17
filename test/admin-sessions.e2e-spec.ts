@@ -181,6 +181,32 @@ describe('Admin sesiones y asistencia (e2e) — Fase 06', () => {
       expect(await prisma.offerSession.count({ where: { offerId: ids.diploma } })).toBe(0);
     });
 
+    it('vista previa con horario distinto por día (sáb 10–13, dom 09–11)', async () => {
+      const res = await post(`/admin/offers/${ids.diploma}/sessions/preview`, coord, {
+        ...body,
+        rule: {
+          slots: [
+            { weekday: 6, startTime: '10:00', endTime: '13:00' },
+            { weekday: 7, startTime: '09:00', endTime: '11:00' },
+          ],
+          excludeMexicanHolidays: true,
+        },
+      }).expect(200);
+      const [sat, sun] = res.body.items;
+      // CDMX = UTC−6.
+      expect(sat).toMatchObject({
+        date: '2026-11-07',
+        startsAt: '2026-11-07T16:00:00.000Z',
+        endsAt: '2026-11-07T19:00:00.000Z',
+      });
+      expect(sun).toMatchObject({
+        date: '2026-11-08',
+        startsAt: '2026-11-08T15:00:00.000Z',
+        endsAt: '2026-11-08T17:00:00.000Z',
+      });
+      expect(await prisma.offerSession.count({ where: { offerId: ids.diploma } })).toBe(0);
+    });
+
     it('enlace que no es zoom/meet → 400 INVALID_MEETING_URL', async () => {
       const res = await post(`/admin/offers/${ids.diploma}/sessions/preview`, coord, {
         ...body,

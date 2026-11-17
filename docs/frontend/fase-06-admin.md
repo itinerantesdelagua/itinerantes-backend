@@ -213,9 +213,11 @@ Grabaciones (sección "Grabación"): se leen aquí, pero el enlace se edita en `
 | 6 Asistencia | `attendance` | `attendanceWindowHours` (1–72) | — |
 | 7 WhatsApp | `whatsapp` | `whatsappGroupUrl` (https://chat.whatsapp.com/…), `whatsappVisibleFrom` | URL inválida → 400 |
 
-- `totalHours` viaja en horas (60) y se guarda en minutos. `scheduleRule` en hora CDMX (`weekdays` ISO
-  1–7, `startTime`/`endTime` "HH:mm", `excludedDates[]`, `excludeMexicanHolidays`); errores de la regla →
-  400 con `details[].field = "scheduleRule.endTime"`, etc.
+- `totalHours` viaja en horas (60) y se guarda en minutos. `scheduleRule` en hora CDMX: horario por día
+  con `slots: [{ weekday 1–7, startTime "HH:mm", endTime "HH:mm" }]` (p. ej. lun 10–12 y jue 16–18) o la
+  forma clásica `weekdays` + `startTime`/`endTime` (mismo horario todos los días); más `excludedDates[]`,
+  `excludeMexicanHolidays`. La API la devuelve normalizada (siempre con `slots`). Errores de la regla →
+  400 con `details[].field = "scheduleRule.endTime"`, `"scheduleRule.slots.1.endTime"`, etc.
 - **Tipo, modalidad y origen** quedan bloqueados si hay inscripciones que ocupan cupo o postulaciones
   enviadas (`hasEnrollments: true`; intentar cambiarlos → 409 `OFFER_HAS_ENROLLMENTS`).
 - El `slug` (URL pública) se recalcula al renombrar SOLO si la oferta nunca se publicó.

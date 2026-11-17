@@ -467,8 +467,11 @@ model Offer {
   // --- Horario (paso 3) ---
   /// Duración total en minutos (60 h = 3600). La API la expone en horas.
   totalMinutes     Int?             @map("total_minutes")
-  /// Regla de horario en hora CDMX (JSON validado, ver offers/schedule-rule.ts):
-  /// { weekdays: [6,7], startTime: "10:00", endTime: "13:00", excludedDates: ["2026-12-19"] }
+  /// Regla de horario en hora CDMX (JSON validado y normalizado, ver offers/policies/schedule-rule.ts).
+  /// Horario por día de clase en `slots`; `weekdays`/`startTime`/`endTime` se derivan (compatibilidad):
+  /// { slots: [{ weekday: 1, startTime: "10:00", endTime: "12:00" }, { weekday: 4, startTime: "16:00",
+  ///   endTime: "18:00" }], weekdays: [1,4], startTime: "10:00", endTime: "12:00", excludedDates: [] }
+  /// Las reglas antiguas sin `slots` ({ weekdays, startTime, endTime }) siguen siendo válidas.
   scheduleRule     Json?            @map("schedule_rule")
   /// Categoría de color por defecto de sus sesiones (HU-29).
   calendarCategory CalendarCategory @default(TRAINING) @map("calendar_category")

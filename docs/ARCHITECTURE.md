@@ -161,8 +161,10 @@ Decisiones de modelo (`prisma/schema.prisma`):
   inscripción).
 - Precios fijos por moneda en centavos (`priceMxnCents`, `priceUsdCents`; enum `Currency` para fases
   futuras). `isFree` para gratuitas. Moodle no muestra precio.
-- Regla de horario en `Offer.scheduleRule` (JSON: `weekdays` ISO, `startTime`/`endTime` en hora CDMX,
-  `excludedDates`, `excludeMexicanHolidays`); duración total en `totalMinutes`.
+- Regla de horario en `Offer.scheduleRule` (JSON: `slots` = horario por día de clase `{ weekday ISO,
+  startTime, endTime }` en hora CDMX, `excludedDates`, `excludeMexicanHolidays`); `weekdays` y
+  `startTime`/`endTime` (del primer día) se derivan por compatibilidad, y las reglas antiguas sin `slots`
+  se normalizan al leerlas (`schedule-rule.ts`). Duración total en `totalMinutes`.
 - **Sesiones vs. calendario**: `OfferSession` son las clases (generadas desde la regla o editadas una a
   una; `joinUrl` de participante, `hostUrl` solo panel, `recordingUrl`, `status` SCHEDULED/CANCELLED,
   `changeReason`, `originalStartsAt`, override de ventana de asistencia; única por `(offerId,

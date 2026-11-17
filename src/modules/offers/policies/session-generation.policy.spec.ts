@@ -106,6 +106,72 @@ describe('generateSessions (HU-29)', () => {
     expect(validateOfferHours('DIPLOMA', 58 * 60)).toEqual(['DIPLOMA_HOURS_MISMATCH']);
   });
 
+  it('horario distinto por día: lun 10:00–12:00 y jue 16:00–18:00', () => {
+    const rule = parseScheduleRule({
+      slots: [
+        { weekday: 1, startTime: '10:00', endTime: '12:00' },
+        { weekday: 4, startTime: '16:00', endTime: '18:30' },
+      ],
+    });
+    // Del lunes 2026-11-02 al jueves 2026-11-12: lun 2, jue 5, lun 9, jue 12.
+    const result = generateSessions({ rule, startDate: '2026-11-02', endDate: '2026-11-12' });
+    expect(
+      result.sessions.map((s) => [s.date, s.startsAt.toISOString(), s.endsAt.toISOString()]),
+    ).toEqual([
+      ['2026-11-02', '2026-11-02T16:00:00.000Z', '2026-11-02T18:00:00.000Z'],
+      ['2026-11-05', '2026-11-05T22:00:00.000Z', '2026-11-06T00:30:00.000Z'],
+      ['2026-11-09', '2026-11-09T16:00:00.000Z', '2026-11-09T18:00:00.000Z'],
+      ['2026-11-12', '2026-11-12T22:00:00.000Z', '2026-11-13T00:30:00.000Z'],
+    ]);
+    // 2 × 120 min + 2 × 150 min.
+    expect(result.totalMinutes).toBe(2 * 120 + 2 * 150);
+  });
+
+  it('horario por día: exclusiones y conflictos usan el horario de ese día', () => {
+    const rule = parseScheduleRule({
+      slots: [
+        { weekday: 1, startTime: '10:00', endTime: '12:00' },
+        { weekday: 4, startTime: '16:00', endTime: '18:00' },
+      ],
+      excludedDates: ['2026-11-09'],
+    });
+    // Sesión manual el jueves 5 de 17:00 a 17:30 CDMX: choca solo con el horario del jueves.
+    const existing = [
+      { startsAt: new Date('2026-11-05T23:00:00Z'), endsAt: new Date('2026-11-05T23:30:00Z') },
+    ];
+    const result = generateSessions({
+      rule,
+      startDate: '2026-11-02',
+      endDate: '2026-11-12',
+      existing,
+    });
+    const byDate = Object.fromEntries(result.items.map((i) => [i.date, i]));
+    expect(byDate['2026-11-05'].status).toBe('CONFLICT');
+    expect(byDate['2026-11-09']).toMatchObject({
+      status: 'EXCLUDED',
+      exclusionReason: 'MANUAL',
+      startsAt: new Date('2026-11-09T16:00:00Z'),
+    });
+    expect(result.sessions.map((s) => s.date)).toEqual(['2026-11-02', '2026-11-12']);
+    expect(result.totalMinutes).toBe(2 * 120);
+  });
+
+  it('una regla antigua (sin slots) genera lo mismo que antes', () => {
+    const legacy = { weekdays: [6, 7], startTime: '10:00', endTime: '13:00' };
+    const result = generateSessions({
+      rule: parseScheduleRule(legacy),
+      startDate: '2026-11-07',
+      endDate: '2026-11-15',
+    });
+    expect(result.sessions.map((s) => s.startsAt.toISOString())).toEqual([
+      '2026-11-07T16:00:00.000Z',
+      '2026-11-08T16:00:00.000Z',
+      '2026-11-14T16:00:00.000Z',
+      '2026-11-15T16:00:00.000Z',
+    ]);
+    expect(result.totalMinutes).toBe(4 * 180);
+  });
+
   it('rechaza rangos inválidos', () => {
     expect(() =>
       generateSessions({ rule: diplomaRule, startDate: '2027-01-01', endDate: '2026-01-01' }),
