@@ -76,6 +76,26 @@ export class SessionSlotDto {
   endsAt!: string;
 }
 
+export class OfferScheduleSlotDto {
+  @ApiProperty({ example: 1, description: 'Día ISO: 1 = lunes … 7 = domingo.' })
+  weekday!: number;
+
+  @ApiProperty({ example: '10:00', description: 'Hora de inicio en CDMX (HH:mm) de ese día.' })
+  startTime!: string;
+
+  @ApiProperty({ example: '12:00', description: 'Hora de fin en CDMX (HH:mm) de ese día.' })
+  endTime!: string;
+
+  @ApiProperty({
+    type: SessionSlotDto,
+    nullable: true,
+    description:
+      'Primera sesión de ESE día según la regla, en UTC (para mostrarlo también en la hora del ' +
+      'visitante). null si la oferta no tiene fecha de inicio.',
+  })
+  firstSession!: SessionSlotDto | null;
+}
+
 export class OfferScheduleDto {
   @ApiProperty({
     example: 'America/Mexico_City',
@@ -90,11 +110,30 @@ export class OfferScheduleDto {
   })
   weekdays!: number[];
 
-  @ApiProperty({ example: '10:00', description: 'Hora de inicio en CDMX (HH:mm).' })
+  @ApiProperty({
+    example: '10:00',
+    description:
+      'Hora de inicio en CDMX (HH:mm) del primer día de la semana con clase (ver `slots`).',
+  })
   startTime!: string;
 
-  @ApiProperty({ example: '13:00', description: 'Hora de fin en CDMX (HH:mm).' })
+  @ApiProperty({
+    example: '13:00',
+    description: 'Hora de fin en CDMX (HH:mm) del primer día de la semana con clase (ver `slots`).',
+  })
   endTime!: string;
+
+  @ApiProperty({
+    example: true,
+    description: 'true si todos los días tienen el mismo horario (`startTime`–`endTime`).',
+  })
+  sameTimeAllDays!: boolean;
+
+  @ApiProperty({
+    type: [OfferScheduleSlotDto],
+    description: 'Horario de cada día de clase, de lunes a domingo (puede variar por día).',
+  })
+  slots!: OfferScheduleSlotDto[];
 
   @ApiProperty({
     type: SessionSlotDto,

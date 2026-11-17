@@ -218,6 +218,41 @@ describe('Admin — ofertas y contenido (e2e) — Fase 06', () => {
       }).expect(400);
       expect(badRule.body.details[0].field).toBe('scheduleRule.endTime');
 
+      // Horario distinto por día de clase (sáb 10–13, dom 09–12): se guarda normalizado.
+      const perDay = await patch(`/admin/offers/${offerId}/steps/schedule`, coord, {
+        scheduleRule: {
+          slots: [
+            { weekday: 7, startTime: '09:00', endTime: '12:00' },
+            { weekday: 6, startTime: '10:00', endTime: '13:00' },
+          ],
+          excludeMexicanHolidays: true,
+        },
+      }).expect(200);
+      expect(perDay.body.schedule.scheduleRule).toEqual({
+        weekdays: [6, 7],
+        startTime: '10:00',
+        endTime: '13:00',
+        slots: [
+          { weekday: 6, startTime: '10:00', endTime: '13:00' },
+          { weekday: 7, startTime: '09:00', endTime: '12:00' },
+        ],
+        excludedDates: [],
+        excludeMexicanHolidays: true,
+      });
+      const badSlot = await patch(`/admin/offers/${offerId}/steps/schedule`, coord, {
+        scheduleRule: { slots: [{ weekday: 6, startTime: '13:00', endTime: '10:00' }] },
+      }).expect(400);
+      expect(badSlot.body.details[0].field).toBe('scheduleRule.slots.0.endTime');
+      // De vuelta a la forma clásica (mismo horario): también se acepta.
+      await patch(`/admin/offers/${offerId}/steps/schedule`, coord, {
+        scheduleRule: {
+          weekdays: [6, 7],
+          startTime: '10:00',
+          endTime: '13:00',
+          excludeMexicanHolidays: true,
+        },
+      }).expect(200);
+
       const ok = await patch(`/admin/offers/${offerId}/steps/schedule`, coord, {
         totalHours: 60,
         finalProjectDueAt: days(119).toISOString(),

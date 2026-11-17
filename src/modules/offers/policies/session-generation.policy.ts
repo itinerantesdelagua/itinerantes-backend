@@ -2,14 +2,14 @@ import { DateTime } from 'luxon';
 import { OFFICIAL_TIMEZONE } from '../../../common/utils/time';
 import { BUSINESS_RULES } from '../../../config/business-rules';
 import type { OfferType } from '../../../generated/prisma/client';
-import { type ScheduleRule, ruleSlotMinutes, slotOnDate } from './schedule-rule';
+import { type ScheduleRule, slotForWeekday, slotOnDate } from './schedule-rule';
 
 /**
  * Generación automática de sesiones desde la regla de horario (HU-29). Función PURA: la usa el seed
  * (Fase 02) y la vista previa / "Crear sesiones" del panel (Fase 06).
  *
  * - Recorre cada día del rango [startDate, endDate] (fechas CDMX, inclusivas) cuyo día de la semana
- *   esté en `rule.weekdays`.
+ *   tenga horario en `rule.slots`, con el horario PROPIO de ese día (p. ej. lun 10–12, jue 16–18).
  * - Las fechas excluidas (manuales y, si se pide, festivos de México) se OMITEN sin reprogramar
  *   (Anexo A, HU-29) y aparecen en la vista previa como EXCLUDED.
  * - Una ocurrencia que se traslapa con una sesión existente queda como CONFLICT (no se crea).
@@ -50,7 +50,7 @@ export interface GenerateSessionsResult {
   sessionCount: number;
   excludedCount: number;
   conflictCount: number;
-  /** Minutos totales de las sesiones NEW. */
+  /** Minutos totales de las sesiones NEW (suma del horario de cada día). */
   totalMinutes: number;
 }
 
@@ -73,14 +73,14 @@ export function generateSessions(input: GenerateSessionsInput): GenerateSessions
       for (const day of mexicanFederalHolidays(year)) holidays.add(day);
     }
   }
-  const weekdays = new Set(input.rule.weekdays);
   const existing = input.existing ?? [];
 
   const items: SessionPreviewItem[] = [];
   for (let day = start; day <= end; day = day.plus({ days: 1 })) {
-    if (!weekdays.has(day.weekday)) continue;
+    const times = slotForWeekday(input.rule, day.weekday);
+    if (!times) continue;
     const date = day.toISODate();
-    const slot = slotOnDate(date, input.rule, zone);
+    const slot = slotOnDate(date, times, zone);
     if (manual.has(date)) {
       items.push({ date, ...slot, status: 'EXCLUDED', exclusionReason: 'MANUAL' });
     } else if (holidays.has(date)) {
@@ -97,15 +97,19 @@ export function generateSessions(input: GenerateSessionsInput): GenerateSessions
     const assignment = distributeAcrossModules(sessions.length, input.moduleCount);
     sessions.forEach((session, i) => (session.moduleIndex = assignment[i]));
   }
-  const slotMinutes = ruleSlotMinutes(input.rule);
   return {
     items,
     sessions,
     sessionCount: sessions.length,
     excludedCount: items.filter((i) => i.status === 'EXCLUDED').length,
     conflictCount: items.filter((i) => i.status === 'CONFLICT').length,
-    totalMinutes: sessions.length * slotMinutes,
+    totalMinutes: sessions.reduce((sum, s) => sum + sessionMinutes(s), 0),
   };
+}
+
+/** Minutos de una sesión (cada día puede tener su propio horario). */
+function sessionMinutes(session: { startsAt: Date; endsAt: Date }): number {
+  return Math.round((session.endsAt.getTime() - session.startsAt.getTime()) / 60_000);
 }
 
 function overlaps(

@@ -168,15 +168,42 @@ export class AdminSessionListDto {
 
 // --- Generación (HU-29) --------------------------------------------------------------------------
 
-export class ScheduleRuleBodyDto {
-  @ApiProperty({ example: [6, 7], description: 'Días ISO (1 = lunes … 7 = domingo).' })
-  weekdays!: number[];
+export class ScheduleSlotBodyDto {
+  @ApiProperty({ example: 1, description: 'Día ISO (1 = lunes … 7 = domingo).' })
+  weekday!: number;
 
   @ApiProperty({ example: '10:00', description: 'Inicio en hora CDMX (HH:mm).' })
   startTime!: string;
 
-  @ApiProperty({ example: '13:00', description: 'Fin en hora CDMX (HH:mm), posterior al inicio.' })
+  @ApiProperty({ example: '12:00', description: 'Fin en hora CDMX (HH:mm), posterior al inicio.' })
   endTime!: string;
+}
+
+/**
+ * Regla de horario: `slots` (horario propio por día, p. ej. lun 10–12 y jue 16–18) o la forma
+ * clásica `weekdays` + `startTime` + `endTime` (mismo horario todos los días). `slots` manda.
+ */
+export class ScheduleRuleBodyDto {
+  @ApiPropertyOptional({
+    type: [ScheduleSlotBodyDto],
+    description: 'Horario por día de clase (sin días repetidos).',
+  })
+  slots?: ScheduleSlotBodyDto[];
+
+  @ApiPropertyOptional({
+    example: [6, 7],
+    description: 'Forma clásica: días ISO (1 = lunes … 7 = domingo).',
+  })
+  weekdays?: number[];
+
+  @ApiPropertyOptional({ example: '10:00', description: 'Forma clásica: inicio en CDMX (HH:mm).' })
+  startTime?: string;
+
+  @ApiPropertyOptional({
+    example: '13:00',
+    description: 'Forma clásica: fin en CDMX (HH:mm), posterior al inicio.',
+  })
+  endTime?: string;
 
   @ApiPropertyOptional({
     example: ['2026-12-26'],

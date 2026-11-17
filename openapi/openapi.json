@@ -5504,6 +5504,242 @@
         ]
       }
     },
+    "/api/v1/admin/dashboard": {
+      "get": {
+        "description": "Todo el dashboard en una llamada. `people` lo ve cualquier integrante del equipo; `training` (`offers.read`), `applications` (`applications.read`), `payments` (`payments.read`) y `contact` (`contact.read`) vienen en `null` sin ese permiso. Las cifras \"InPeriod\" y los montos cobrados usan `from`/`to` (por defecto los últimos 30 días); los estados y `tasks` son la foto actual. Los montos van por moneda, nunca sumados.",
+        "operationId": "AdminDashboard_overview",
+        "parameters": [
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "description": "Inicio del periodo (ISO 8601). Por defecto: 30 días antes de `to`.",
+            "schema": {
+              "example": "2026-10-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "description": "Fin del periodo (ISO 8601). Por defecto: ahora.",
+            "schema": {
+              "example": "2026-10-31T23:59:59.999Z",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDashboardDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error. `code` posibles: `VALIDATION_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "examples": {
+                  "VALIDATION_ERROR": {
+                    "summary": "VALIDATION_ERROR",
+                    "value": {
+                      "statusCode": 400,
+                      "code": "VALIDATION_ERROR",
+                      "message": "Los datos enviados no son válidos.",
+                      "details": [
+                        {
+                          "field": "email",
+                          "code": "IS_EMAIL",
+                          "message": "Debe ser un correo electrónico válido."
+                        }
+                      ],
+                      "requestId": "3f1c2a9e-5b7d-4c1e-9f0a-2d8b6e4c1a7f"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error. `code` posibles: `UNAUTHORIZED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "examples": {
+                  "UNAUTHORIZED": {
+                    "summary": "UNAUTHORIZED",
+                    "value": {
+                      "statusCode": 401,
+                      "code": "UNAUTHORIZED",
+                      "message": "Necesitas iniciar sesión para continuar.",
+                      "requestId": "3f1c2a9e-5b7d-4c1e-9f0a-2d8b6e4c1a7f"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error. `code` posibles: `FORBIDDEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "examples": {
+                  "FORBIDDEN": {
+                    "summary": "FORBIDDEN",
+                    "value": {
+                      "statusCode": 403,
+                      "code": "FORBIDDEN",
+                      "message": "No tienes permiso para realizar esta acción.",
+                      "requestId": "3f1c2a9e-5b7d-4c1e-9f0a-2d8b6e4c1a7f"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cifras del inicio del panel",
+        "tags": [
+          "Admin – Dashboard"
+        ],
+        "x-required-permissions": [
+          "admin.access"
+        ]
+      }
+    },
+    "/api/v1/admin/dashboard/trends": {
+      "get": {
+        "description": "Últimos `months` meses (1–24, por defecto 6) incluido el actual, cortados con la hora de Ciudad de México: personas nuevas, inscripciones nuevas, postulaciones enviadas y neto cobrado en MXN y USD (centavos). Cada serie viene en `null` sin su permiso.",
+        "operationId": "AdminDashboard_trends",
+        "parameters": [
+          {
+            "name": "months",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 24,
+              "default": 6,
+              "example": 6,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDashboardTrendsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error. `code` posibles: `VALIDATION_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "examples": {
+                  "VALIDATION_ERROR": {
+                    "summary": "VALIDATION_ERROR",
+                    "value": {
+                      "statusCode": 400,
+                      "code": "VALIDATION_ERROR",
+                      "message": "Los datos enviados no son válidos.",
+                      "details": [
+                        {
+                          "field": "email",
+                          "code": "IS_EMAIL",
+                          "message": "Debe ser un correo electrónico válido."
+                        }
+                      ],
+                      "requestId": "3f1c2a9e-5b7d-4c1e-9f0a-2d8b6e4c1a7f"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error. `code` posibles: `UNAUTHORIZED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "examples": {
+                  "UNAUTHORIZED": {
+                    "summary": "UNAUTHORIZED",
+                    "value": {
+                      "statusCode": 401,
+                      "code": "UNAUTHORIZED",
+                      "message": "Necesitas iniciar sesión para continuar.",
+                      "requestId": "3f1c2a9e-5b7d-4c1e-9f0a-2d8b6e4c1a7f"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error. `code` posibles: `FORBIDDEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "examples": {
+                  "FORBIDDEN": {
+                    "summary": "FORBIDDEN",
+                    "value": {
+                      "statusCode": 403,
+                      "code": "FORBIDDEN",
+                      "message": "No tienes permiso para realizar esta acción.",
+                      "requestId": "3f1c2a9e-5b7d-4c1e-9f0a-2d8b6e4c1a7f"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Series por mes para las gráficas del inicio",
+        "tags": [
+          "Admin – Dashboard"
+        ],
+        "x-required-permissions": [
+          "admin.access"
+        ]
+      }
+    },
     "/api/v1/site/metrics": {
       "get": {
         "description": "HU-01. Público, sin token. Devuelve las cifras visibles (\"+3,000,000 L de agua revitaliza\", \"1,800+ personas formadas\", \"12+ territorios…\", \"250+ jóvenes capacitados\") ordenadas. Usa `display` tal cual o `value` si animas el contador (pinta `prefix` + número + `suffix`). Las edita SUPER_ADMIN con `PATCH /admin/site/metrics/{key}`. Caché de 5 minutos.",
@@ -30088,6 +30324,645 @@
           }
         }
       },
+      "DashboardPeriodDto": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "to": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "from",
+          "to"
+        ]
+      },
+      "CountryCountDto": {
+        "type": "object",
+        "properties": {
+          "countryCode": {
+            "type": "string",
+            "example": "MX"
+          },
+          "count": {
+            "type": "number",
+            "example": 42
+          }
+        },
+        "required": [
+          "countryCode",
+          "count"
+        ]
+      },
+      "DashboardPeopleDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number",
+            "example": 120,
+            "description": "Cuentas de participantes (sin el equipo)."
+          },
+          "active": {
+            "type": "number",
+            "example": 110
+          },
+          "pendingVerification": {
+            "type": "number",
+            "example": 8,
+            "description": "Registradas sin verificar el correo."
+          },
+          "disabled": {
+            "type": "number",
+            "example": 2
+          },
+          "newInPeriod": {
+            "type": "number",
+            "example": 15,
+            "description": "Registradas dentro del periodo."
+          },
+          "topCountries": {
+            "description": "Los 5 países con más personas.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CountryCountDto"
+            }
+          }
+        },
+        "required": [
+          "total",
+          "active",
+          "pendingVerification",
+          "disabled",
+          "newInPeriod",
+          "topCountries"
+        ]
+      },
+      "EnrollmentStatusCountsDto": {
+        "type": "object",
+        "properties": {
+          "active": {
+            "type": "number",
+            "example": 60
+          },
+          "pendingPayment": {
+            "type": "number",
+            "example": 3
+          },
+          "completed": {
+            "type": "number",
+            "example": 20
+          },
+          "suspended": {
+            "type": "number",
+            "example": 1
+          },
+          "cancelled": {
+            "type": "number",
+            "example": 0
+          }
+        },
+        "required": [
+          "active",
+          "pendingPayment",
+          "completed",
+          "suspended",
+          "cancelled"
+        ]
+      },
+      "EnrollmentSource": {
+        "type": "string",
+        "enum": [
+          "FREE_SIGNUP",
+          "PAYMENT",
+          "INSTALLMENTS",
+          "SCHOLARSHIP",
+          "OPEN_CALL",
+          "MOODLE_LIST",
+          "MOODLE_ACCESS_CODE",
+          "MANUAL"
+        ]
+      },
+      "EnrollmentSourceCountDto": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EnrollmentSource"
+              }
+            ]
+          },
+          "count": {
+            "type": "number",
+            "example": 12
+          }
+        },
+        "required": [
+          "source",
+          "count"
+        ]
+      },
+      "OfferType": {
+        "type": "string",
+        "enum": [
+          "DIPLOMA",
+          "COURSE",
+          "WORKSHOP",
+          "EVENT",
+          "OPEN_CALL"
+        ]
+      },
+      "TopOfferDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Diplomado en Ecotecnologías"
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OfferType"
+              }
+            ]
+          },
+          "enrolled": {
+            "type": "number",
+            "example": 25,
+            "description": "Inscripciones activas + completadas."
+          },
+          "capacity": {
+            "type": "number",
+            "example": 30,
+            "nullable": true,
+            "description": "null = sin cupo."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type",
+          "enrolled",
+          "capacity"
+        ]
+      },
+      "DashboardTrainingDto": {
+        "type": "object",
+        "properties": {
+          "publishedOffers": {
+            "type": "number",
+            "example": 6
+          },
+          "offersInProgress": {
+            "type": "number",
+            "example": 3,
+            "description": "Publicadas que ya empezaron y no han terminado."
+          },
+          "enrollments": {
+            "$ref": "#/components/schemas/EnrollmentStatusCountsDto"
+          },
+          "newEnrollmentsInPeriod": {
+            "type": "number",
+            "example": 18,
+            "description": "Inscripciones creadas dentro del periodo."
+          },
+          "bySource": {
+            "description": "Inscripciones por origen.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EnrollmentSourceCountDto"
+            }
+          },
+          "upcomingSessions7d": {
+            "type": "number",
+            "example": 4,
+            "description": "Sesiones programadas en los próximos 7 días."
+          },
+          "topOffers": {
+            "description": "Las 5 ofertas con más inscripciones.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopOfferDto"
+            }
+          }
+        },
+        "required": [
+          "publishedOffers",
+          "offersInProgress",
+          "enrollments",
+          "newEnrollmentsInPeriod",
+          "bySource",
+          "upcomingSessions7d",
+          "topOffers"
+        ]
+      },
+      "ApplicationStatus": {
+        "type": "string",
+        "enum": [
+          "DRAFT",
+          "SUBMITTED",
+          "IN_REVIEW",
+          "INTERVIEW_SCHEDULED",
+          "APPROVED_PENDING_PAYMENT",
+          "APPROVED_PENDING_CONFIRMATION",
+          "ENROLLED",
+          "NOT_SELECTED",
+          "EXPIRED"
+        ]
+      },
+      "ApplicationStatusCountDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ApplicationStatus"
+              }
+            ]
+          },
+          "count": {
+            "type": "number",
+            "example": 5
+          }
+        },
+        "required": [
+          "status",
+          "count"
+        ]
+      },
+      "ApplicationKind": {
+        "type": "string",
+        "enum": [
+          "SCHOLARSHIP",
+          "OPEN_CALL"
+        ]
+      },
+      "ApplicationKindCountDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ApplicationKind"
+              }
+            ]
+          },
+          "count": {
+            "type": "number",
+            "example": 20
+          }
+        },
+        "required": [
+          "kind",
+          "count"
+        ]
+      },
+      "DashboardApplicationsDto": {
+        "type": "object",
+        "properties": {
+          "byStatus": {
+            "description": "Un elemento por estado (incluye 0, sin DRAFT).",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApplicationStatusCountDto"
+            }
+          },
+          "byKind": {
+            "description": "Enviadas, por tipo (sin DRAFT).",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApplicationKindCountDto"
+            }
+          },
+          "toReview": {
+            "type": "number",
+            "example": 7,
+            "description": "SUBMITTED + IN_REVIEW: esperan revisión."
+          },
+          "interviewsScheduled": {
+            "type": "number",
+            "example": 2
+          },
+          "approvedPending": {
+            "type": "number",
+            "example": 3,
+            "description": "Aprobadas que aún no pagan o no confirman."
+          },
+          "submittedInPeriod": {
+            "type": "number",
+            "example": 9,
+            "description": "Enviadas dentro del periodo."
+          }
+        },
+        "required": [
+          "byStatus",
+          "byKind",
+          "toReview",
+          "interviewsScheduled",
+          "approvedPending",
+          "submittedInPeriod"
+        ]
+      },
+      "MoneyDto": {
+        "type": "object",
+        "properties": {
+          "amountCents": {
+            "type": "number",
+            "example": 1020000,
+            "description": "Centavos enteros."
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "MXN",
+              "USD"
+            ],
+            "example": "MXN"
+          }
+        },
+        "required": [
+          "amountCents",
+          "currency"
+        ]
+      },
+      "CurrencyTotalsDto": {
+        "type": "object",
+        "properties": {
+          "currency": {
+            "type": "string",
+            "enum": [
+              "MXN",
+              "USD"
+            ],
+            "example": "MXN"
+          },
+          "collected": {
+            "description": "Pagos con tarjeta pagados + transferencias validadas.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MoneyDto"
+              }
+            ]
+          },
+          "refunded": {
+            "$ref": "#/components/schemas/MoneyDto"
+          },
+          "net": {
+            "description": "Cobrado − reembolsado.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MoneyDto"
+              }
+            ]
+          },
+          "paymentCount": {
+            "type": "number",
+            "example": 42
+          }
+        },
+        "required": [
+          "currency",
+          "collected",
+          "refunded",
+          "net",
+          "paymentCount"
+        ]
+      },
+      "DashboardPlansDto": {
+        "type": "object",
+        "properties": {
+          "pastDue": {
+            "type": "number",
+            "example": 1,
+            "description": "Planes con cobro fallido (en reintento)."
+          },
+          "delinquent": {
+            "type": "number",
+            "example": 1,
+            "description": "Planes en mora."
+          }
+        },
+        "required": [
+          "pastDue",
+          "delinquent"
+        ]
+      },
+      "DashboardPaymentsDto": {
+        "type": "object",
+        "properties": {
+          "currencies": {
+            "description": "Cobrado, reembolsado y neto dentro del periodo, por moneda (nunca se suman).",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CurrencyTotalsDto"
+            }
+          },
+          "pendingTransfers": {
+            "type": "number",
+            "example": 2,
+            "description": "Transferencias esperando validación."
+          },
+          "plans": {
+            "$ref": "#/components/schemas/DashboardPlansDto"
+          },
+          "pendingRefunds": {
+            "type": "number",
+            "example": 0
+          }
+        },
+        "required": [
+          "currencies",
+          "pendingTransfers",
+          "plans",
+          "pendingRefunds"
+        ]
+      },
+      "DashboardContactDto": {
+        "type": "object",
+        "properties": {
+          "unread": {
+            "type": "number",
+            "example": 4,
+            "description": "Mensajes de Contacto nuevos (NEW)."
+          }
+        },
+        "required": [
+          "unread"
+        ]
+      },
+      "DashboardTaskDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "enum": [
+              "APPLICATIONS_TO_REVIEW",
+              "INTERVIEWS_SCHEDULED",
+              "APPROVED_PENDING",
+              "TRANSFERS_TO_VALIDATE",
+              "PLANS_DELINQUENT",
+              "REFUNDS_PENDING",
+              "CONTACT_UNREAD",
+              "SESSIONS_NEXT_7_DAYS"
+            ],
+            "example": "TRANSFERS_TO_VALIDATE"
+          },
+          "label": {
+            "type": "string",
+            "example": "Transferencias por validar"
+          },
+          "count": {
+            "type": "number",
+            "example": 2
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "count"
+        ]
+      },
+      "AdminDashboardDto": {
+        "type": "object",
+        "properties": {
+          "period": {
+            "$ref": "#/components/schemas/DashboardPeriodDto"
+          },
+          "people": {
+            "description": "Cualquier integrante del equipo.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DashboardPeopleDto"
+              }
+            ]
+          },
+          "training": {
+            "nullable": true,
+            "description": "`offers.read`.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DashboardTrainingDto"
+              }
+            ]
+          },
+          "applications": {
+            "nullable": true,
+            "description": "`applications.read`; null sin ese permiso.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DashboardApplicationsDto"
+              }
+            ]
+          },
+          "payments": {
+            "nullable": true,
+            "description": "`payments.read`; null sin ese permiso.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DashboardPaymentsDto"
+              }
+            ]
+          },
+          "contact": {
+            "nullable": true,
+            "description": "`contact.read`; null sin ese permiso.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DashboardContactDto"
+              }
+            ]
+          },
+          "tasks": {
+            "description": "Pendientes con count > 0 según los permisos de quien consulta (no dependen del periodo).",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DashboardTaskDto"
+            }
+          }
+        },
+        "required": [
+          "period",
+          "people",
+          "training",
+          "applications",
+          "payments",
+          "contact",
+          "tasks"
+        ]
+      },
+      "TrendMonthDto": {
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "string",
+            "example": "2026-10",
+            "description": "Mes (hora de Ciudad de México)."
+          },
+          "newParticipants": {
+            "type": "number",
+            "example": 12
+          },
+          "newEnrollments": {
+            "type": "number",
+            "example": 9,
+            "nullable": true,
+            "description": "null sin `offers.read`."
+          },
+          "submittedApplications": {
+            "type": "number",
+            "example": 5,
+            "nullable": true,
+            "description": "null sin `applications.read`."
+          },
+          "netMxnCents": {
+            "type": "number",
+            "example": 4500000,
+            "nullable": true,
+            "description": "Neto cobrado en MXN (centavos); null sin `payments.read`."
+          },
+          "netUsdCents": {
+            "type": "number",
+            "example": 25000,
+            "nullable": true,
+            "description": "Neto cobrado en USD (centavos); null sin `payments.read`."
+          }
+        },
+        "required": [
+          "month",
+          "newParticipants",
+          "newEnrollments",
+          "submittedApplications",
+          "netMxnCents",
+          "netUsdCents"
+        ]
+      },
+      "AdminDashboardTrendsDto": {
+        "type": "object",
+        "properties": {
+          "months": {
+            "description": "Del mes más antiguo al actual.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrendMonthDto"
+            }
+          }
+        },
+        "required": [
+          "months"
+        ]
+      },
       "SiteMetricDto": {
         "type": "object",
         "properties": {
@@ -30636,6 +31511,42 @@
           "endsAt"
         ]
       },
+      "OfferScheduleSlotDto": {
+        "type": "object",
+        "properties": {
+          "weekday": {
+            "type": "number",
+            "example": 1,
+            "description": "Día ISO: 1 = lunes … 7 = domingo."
+          },
+          "startTime": {
+            "type": "string",
+            "example": "10:00",
+            "description": "Hora de inicio en CDMX (HH:mm) de ese día."
+          },
+          "endTime": {
+            "type": "string",
+            "example": "12:00",
+            "description": "Hora de fin en CDMX (HH:mm) de ese día."
+          },
+          "firstSession": {
+            "nullable": true,
+            "description": "Primera sesión de ESE día según la regla, en UTC (para mostrarlo también en la hora del visitante). null si la oferta no tiene fecha de inicio.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SessionSlotDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "weekday",
+          "startTime",
+          "endTime",
+          "firstSession"
+        ]
+      },
       "OfferScheduleDto": {
         "type": "object",
         "properties": {
@@ -30658,12 +31569,24 @@
           "startTime": {
             "type": "string",
             "example": "10:00",
-            "description": "Hora de inicio en CDMX (HH:mm)."
+            "description": "Hora de inicio en CDMX (HH:mm) del primer día de la semana con clase (ver `slots`)."
           },
           "endTime": {
             "type": "string",
             "example": "13:00",
-            "description": "Hora de fin en CDMX (HH:mm)."
+            "description": "Hora de fin en CDMX (HH:mm) del primer día de la semana con clase (ver `slots`)."
+          },
+          "sameTimeAllDays": {
+            "type": "boolean",
+            "example": true,
+            "description": "true si todos los días tienen el mismo horario (`startTime`–`endTime`)."
+          },
+          "slots": {
+            "description": "Horario de cada día de clase, de lunes a domingo (puede variar por día).",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OfferScheduleSlotDto"
+            }
           },
           "firstSession": {
             "nullable": true,
@@ -30681,6 +31604,8 @@
           "weekdays",
           "startTime",
           "endTime",
+          "sameTimeAllDays",
+          "slots",
           "firstSession"
         ]
       },
@@ -30700,28 +31625,6 @@
         "required": [
           "name",
           "city"
-        ]
-      },
-      "MoneyDto": {
-        "type": "object",
-        "properties": {
-          "amountCents": {
-            "type": "number",
-            "example": 1020000,
-            "description": "Centavos enteros."
-          },
-          "currency": {
-            "type": "string",
-            "enum": [
-              "MXN",
-              "USD"
-            ],
-            "example": "MXN"
-          }
-        },
-        "required": [
-          "amountCents",
-          "currency"
         ]
       },
       "OfferInstallmentsDto": {
@@ -32310,19 +33213,15 @@
           "finalProjectGuidelines"
         ]
       },
-      "ScheduleRuleDto": {
+      "ScheduleSlotDto": {
         "type": "object",
         "properties": {
-          "weekdays": {
-            "example": [
-              6,
-              7
-            ],
-            "description": "Días ISO: 1 = lunes … 7 = domingo.",
-            "type": "array",
-            "items": {
-              "type": "number"
-            }
+          "weekday": {
+            "type": "number",
+            "example": 1,
+            "minimum": 1,
+            "maximum": 7,
+            "description": "Día ISO: 1 = lunes … 7 = domingo."
           },
           "startTime": {
             "type": "string",
@@ -32331,8 +33230,46 @@
           },
           "endTime": {
             "type": "string",
-            "example": "13:00",
+            "example": "12:00",
             "description": "Fin en hora CDMX (HH:mm), posterior al inicio."
+          }
+        },
+        "required": [
+          "weekday",
+          "startTime",
+          "endTime"
+        ]
+      },
+      "ScheduleRuleDto": {
+        "type": "object",
+        "properties": {
+          "weekdays": {
+            "example": [
+              1,
+              4
+            ],
+            "description": "Días ISO con clase (1 = lunes … 7 = domingo), derivados de `slots`.",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "startTime": {
+            "type": "string",
+            "example": "10:00",
+            "description": "Inicio (CDMX, HH:mm) del primer día de `slots`. Compatibilidad: usa `slots`."
+          },
+          "endTime": {
+            "type": "string",
+            "example": "12:00",
+            "description": "Fin (CDMX, HH:mm) del primer día de `slots`. Compatibilidad: usa `slots`."
+          },
+          "slots": {
+            "description": "Horario de cada día de clase, de lunes a domingo (puede variar por día).",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScheduleSlotDto"
+            }
           },
           "excludedDates": {
             "example": [
@@ -32353,7 +33290,10 @@
         "required": [
           "weekdays",
           "startTime",
-          "endTime"
+          "endTime",
+          "slots",
+          "excludedDates",
+          "excludeMexicanHolidays"
         ]
       },
       "AdminOfferScheduleDto": {
@@ -33152,6 +34092,54 @@
           }
         }
       },
+      "ScheduleRuleInputDto": {
+        "type": "object",
+        "properties": {
+          "slots": {
+            "description": "Horario por día de clase (sin días repetidos).",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScheduleSlotDto"
+            }
+          },
+          "weekdays": {
+            "example": [
+              6,
+              7
+            ],
+            "description": "Forma clásica: días ISO (1 = lunes … 7 = domingo) con el mismo horario.",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "startTime": {
+            "type": "string",
+            "example": "10:00",
+            "description": "Forma clásica: inicio en CDMX (HH:mm)."
+          },
+          "endTime": {
+            "type": "string",
+            "example": "13:00",
+            "description": "Forma clásica: fin en CDMX (HH:mm)."
+          },
+          "excludedDates": {
+            "example": [
+              "2026-12-19"
+            ],
+            "description": "Fechas CDMX omitidas (recesos).",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "excludeMexicanHolidays": {
+            "type": "boolean",
+            "example": true,
+            "description": "Omite los festivos oficiales de México."
+          }
+        }
+      },
       "UpdateScheduleStepDto": {
         "type": "object",
         "properties": {
@@ -33190,11 +34178,11 @@
           },
           "scheduleRule": {
             "nullable": true,
-            "description": "Regla de horario en hora CDMX (genera las sesiones, HU-29).",
+            "description": "Regla de horario en hora CDMX (genera las sesiones, HU-29). Admite horario distinto por día (`slots`) o el mismo para todos (`weekdays` + `startTime` + `endTime`).",
             "type": "object",
             "allOf": [
               {
-                "$ref": "#/components/schemas/ScheduleRuleDto"
+                "$ref": "#/components/schemas/ScheduleRuleInputDto"
               }
             ]
           },
@@ -38525,19 +39513,13 @@
           "data"
         ]
       },
-      "ScheduleRuleBodyDto": {
+      "ScheduleSlotBodyDto": {
         "type": "object",
         "properties": {
-          "weekdays": {
-            "example": [
-              6,
-              7
-            ],
-            "description": "Días ISO (1 = lunes … 7 = domingo).",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+          "weekday": {
+            "type": "number",
+            "example": 1,
+            "description": "Día ISO (1 = lunes … 7 = domingo)."
           },
           "startTime": {
             "type": "string",
@@ -38546,8 +39528,46 @@
           },
           "endTime": {
             "type": "string",
-            "example": "13:00",
+            "example": "12:00",
             "description": "Fin en hora CDMX (HH:mm), posterior al inicio."
+          }
+        },
+        "required": [
+          "weekday",
+          "startTime",
+          "endTime"
+        ]
+      },
+      "ScheduleRuleBodyDto": {
+        "type": "object",
+        "properties": {
+          "slots": {
+            "description": "Horario por día de clase (sin días repetidos).",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScheduleSlotBodyDto"
+            }
+          },
+          "weekdays": {
+            "example": [
+              6,
+              7
+            ],
+            "description": "Forma clásica: días ISO (1 = lunes … 7 = domingo).",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "startTime": {
+            "type": "string",
+            "example": "10:00",
+            "description": "Forma clásica: inicio en CDMX (HH:mm)."
+          },
+          "endTime": {
+            "type": "string",
+            "example": "13:00",
+            "description": "Forma clásica: fin en CDMX (HH:mm), posterior al inicio."
           },
           "excludedDates": {
             "example": [
@@ -38564,12 +39584,7 @@
             "example": true,
             "description": "Omitir festivos oficiales de México."
           }
-        },
-        "required": [
-          "weekdays",
-          "startTime",
-          "endTime"
-        ]
+        }
       },
       "GenerateSessionsRequestDto": {
         "type": "object",
@@ -40929,167 +41944,6 @@
           "newCount"
         ]
       },
-      "PaymentOfferRefDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid",
-            "example": "9d3c6a1e-2b4f-4c8d-9e0a-1b2c3d4e5f60"
-          },
-          "slug": {
-            "type": "string",
-            "example": "diplomado-en-ecotecnologias-del-agua"
-          },
-          "name": {
-            "type": "string",
-            "example": "Diplomado en Ecotecnologías del Agua"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "DIPLOMA",
-              "COURSE",
-              "WORKSHOP",
-              "EVENT",
-              "OPEN_CALL"
-            ],
-            "example": "DIPLOMA"
-          },
-          "cohortLabel": {
-            "type": "string",
-            "nullable": true,
-            "example": "Generación 2026–2027"
-          },
-          "startsAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "example": "2026-11-07T16:00:00.000Z"
-          },
-          "endsAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "example": "2027-04-25T19:00:00.000Z"
-          }
-        },
-        "required": [
-          "id",
-          "slug",
-          "name",
-          "type",
-          "cohortLabel",
-          "startsAt",
-          "endsAt"
-        ]
-      },
-      "CardDto": {
-        "type": "object",
-        "properties": {
-          "brand": {
-            "type": "string",
-            "nullable": true,
-            "example": "visa"
-          },
-          "last4": {
-            "type": "string",
-            "nullable": true,
-            "example": "4242",
-            "description": "Últimos 4 dígitos."
-          }
-        },
-        "required": [
-          "brand",
-          "last4"
-        ]
-      },
-      "PaymentAlertDto": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "enum": [
-              "INSTALLMENT_FAILED",
-              "PLAN_DELINQUENT",
-              "TRANSFER_REJECTED",
-              "TRANSFER_PENDING",
-              "INSTALLMENT_UPCOMING"
-            ],
-            "example": "INSTALLMENT_FAILED",
-            "description": "INSTALLMENT_FAILED \"Cobro fallido\" ([Actualizar tarjeta] / [Pagar ahora]) · PLAN_DELINQUENT \"En mora\" · TRANSFER_REJECTED \"Rechazada\" ([Subir comprobante]) · TRANSFER_PENDING \"Pendiente de validación\" · INSTALLMENT_UPCOMING \"Próximo cobro\" (informativo)."
-          },
-          "offer": {
-            "$ref": "#/components/schemas/PaymentOfferRefDto"
-          },
-          "amount": {
-            "$ref": "#/components/schemas/MoneyDto"
-          },
-          "date": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "description": "Fecha del cobro / fecha límite / fallo."
-          },
-          "planId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "paymentId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "applicationId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "card": {
-            "nullable": true,
-            "type": "object",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/CardDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "type",
-          "offer",
-          "amount",
-          "date",
-          "planId",
-          "paymentId",
-          "applicationId",
-          "card"
-        ]
-      },
-      "DashboardPaymentsDto": {
-        "type": "object",
-        "properties": {
-          "upcomingInstallments": {
-            "description": "Cuotas que se cobrarán en los próximos 7 días (monto, fecha y tarjeta): aviso informativo.",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PaymentAlertDto"
-            }
-          },
-          "alerts": {
-            "description": "Cobro fallido / En mora / transferencia rechazada: banner destacado → Mis pagos.",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PaymentAlertDto"
-            }
-          }
-        },
-        "required": [
-          "upcomingInstallments",
-          "alerts"
-        ]
-      },
       "DashboardDto": {
         "type": "object",
         "properties": {
@@ -41196,6 +42050,61 @@
           "openCalls",
           "payments",
           "failedBlocks"
+        ]
+      },
+      "PaymentOfferRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "9d3c6a1e-2b4f-4c8d-9e0a-1b2c3d4e5f60"
+          },
+          "slug": {
+            "type": "string",
+            "example": "diplomado-en-ecotecnologias-del-agua"
+          },
+          "name": {
+            "type": "string",
+            "example": "Diplomado en Ecotecnologías del Agua"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "DIPLOMA",
+              "COURSE",
+              "WORKSHOP",
+              "EVENT",
+              "OPEN_CALL"
+            ],
+            "example": "DIPLOMA"
+          },
+          "cohortLabel": {
+            "type": "string",
+            "nullable": true,
+            "example": "Generación 2026–2027"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2026-11-07T16:00:00.000Z"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2027-04-25T19:00:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "type",
+          "cohortLabel",
+          "startsAt",
+          "endsAt"
         ]
       },
       "QuoteApplicationDto": {
@@ -41516,6 +42425,26 @@
         "required": [
           "sequence",
           "count"
+        ]
+      },
+      "CardDto": {
+        "type": "object",
+        "properties": {
+          "brand": {
+            "type": "string",
+            "nullable": true,
+            "example": "visa"
+          },
+          "last4": {
+            "type": "string",
+            "nullable": true,
+            "example": "4242",
+            "description": "Últimos 4 dígitos."
+          }
+        },
+        "required": [
+          "brand",
+          "last4"
         ]
       },
       "TransferInfoDto": {
@@ -42097,6 +43026,69 @@
           "activatedAt"
         ]
       },
+      "PaymentAlertDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "INSTALLMENT_FAILED",
+              "PLAN_DELINQUENT",
+              "TRANSFER_REJECTED",
+              "TRANSFER_PENDING",
+              "INSTALLMENT_UPCOMING"
+            ],
+            "example": "INSTALLMENT_FAILED",
+            "description": "INSTALLMENT_FAILED \"Cobro fallido\" ([Actualizar tarjeta] / [Pagar ahora]) · PLAN_DELINQUENT \"En mora\" · TRANSFER_REJECTED \"Rechazada\" ([Subir comprobante]) · TRANSFER_PENDING \"Pendiente de validación\" · INSTALLMENT_UPCOMING \"Próximo cobro\" (informativo)."
+          },
+          "offer": {
+            "$ref": "#/components/schemas/PaymentOfferRefDto"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/MoneyDto"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Fecha del cobro / fecha límite / fallo."
+          },
+          "planId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "paymentId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "applicationId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "card": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CardDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "type",
+          "offer",
+          "amount",
+          "date",
+          "planId",
+          "paymentId",
+          "applicationId",
+          "card"
+        ]
+      },
       "PaymentsSummaryDto": {
         "type": "object",
         "properties": {
@@ -42653,49 +43645,6 @@
           "paidAt",
           "failedAt",
           "refundedAt"
-        ]
-      },
-      "CurrencyTotalsDto": {
-        "type": "object",
-        "properties": {
-          "currency": {
-            "type": "string",
-            "enum": [
-              "MXN",
-              "USD"
-            ],
-            "example": "MXN"
-          },
-          "collected": {
-            "description": "Pagos con tarjeta pagados + transferencias validadas.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/MoneyDto"
-              }
-            ]
-          },
-          "refunded": {
-            "$ref": "#/components/schemas/MoneyDto"
-          },
-          "net": {
-            "description": "Cobrado − reembolsado.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/MoneyDto"
-              }
-            ]
-          },
-          "paymentCount": {
-            "type": "number",
-            "example": 42
-          }
-        },
-        "required": [
-          "currency",
-          "collected",
-          "refunded",
-          "net",
-          "paymentCount"
         ]
       },
       "PendingTransfersSummaryDto": {

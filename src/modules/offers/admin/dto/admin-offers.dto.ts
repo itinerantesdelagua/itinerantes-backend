@@ -321,19 +321,84 @@ export class UpdateContentStepDto {
   finalProjectGuidelines?: string | null;
 }
 
-export class ScheduleRuleDto {
+export class ScheduleSlotDto {
   @ApiProperty({
-    type: [Number],
-    example: [6, 7],
-    description: 'Días ISO: 1 = lunes … 7 = domingo.',
+    example: 1,
+    minimum: 1,
+    maximum: 7,
+    description: 'Día ISO: 1 = lunes … 7 = domingo.',
   })
-  weekdays!: number[];
+  weekday!: number;
 
   @ApiProperty({ example: '10:00', description: 'Inicio en hora CDMX (HH:mm).' })
   startTime!: string;
 
-  @ApiProperty({ example: '13:00', description: 'Fin en hora CDMX (HH:mm), posterior al inicio.' })
+  @ApiProperty({ example: '12:00', description: 'Fin en hora CDMX (HH:mm), posterior al inicio.' })
   endTime!: string;
+}
+
+/** Regla de horario guardada (normalizada: siempre trae `slots` y los campos clásicos derivados). */
+export class ScheduleRuleDto {
+  @ApiProperty({
+    type: [Number],
+    example: [1, 4],
+    description: 'Días ISO con clase (1 = lunes … 7 = domingo), derivados de `slots`.',
+  })
+  weekdays!: number[];
+
+  @ApiProperty({
+    example: '10:00',
+    description: 'Inicio (CDMX, HH:mm) del primer día de `slots`. Compatibilidad: usa `slots`.',
+  })
+  startTime!: string;
+
+  @ApiProperty({
+    example: '12:00',
+    description: 'Fin (CDMX, HH:mm) del primer día de `slots`. Compatibilidad: usa `slots`.',
+  })
+  endTime!: string;
+
+  @ApiProperty({
+    type: [ScheduleSlotDto],
+    description: 'Horario de cada día de clase, de lunes a domingo (puede variar por día).',
+  })
+  slots!: ScheduleSlotDto[];
+
+  @ApiProperty({
+    type: [String],
+    example: ['2026-12-19'],
+    description: 'Fechas CDMX omitidas (recesos).',
+  })
+  excludedDates!: string[];
+
+  @ApiProperty({ example: true, description: 'Omite los festivos oficiales de México.' })
+  excludeMexicanHolidays!: boolean;
+}
+
+/**
+ * Regla de horario al guardarla. Dos formas: `slots` (horario por día, p. ej. lun 10–12 y jue
+ * 16–18) o la clásica `weekdays` + `startTime` + `endTime` (mismo horario todos los días). Si
+ * viene `slots`, manda y los campos clásicos se ignoran.
+ */
+export class ScheduleRuleInputDto {
+  @ApiPropertyOptional({
+    type: [ScheduleSlotDto],
+    description: 'Horario por día de clase (sin días repetidos).',
+  })
+  slots?: ScheduleSlotDto[];
+
+  @ApiPropertyOptional({
+    type: [Number],
+    example: [6, 7],
+    description: 'Forma clásica: días ISO (1 = lunes … 7 = domingo) con el mismo horario.',
+  })
+  weekdays?: number[];
+
+  @ApiPropertyOptional({ example: '10:00', description: 'Forma clásica: inicio en CDMX (HH:mm).' })
+  startTime?: string;
+
+  @ApiPropertyOptional({ example: '13:00', description: 'Forma clásica: fin en CDMX (HH:mm).' })
+  endTime?: string;
 
   @ApiPropertyOptional({
     type: [String],
@@ -396,9 +461,11 @@ export class UpdateScheduleStepDto {
   totalHours?: number | null;
 
   @ApiPropertyOptional({
-    type: ScheduleRuleDto,
+    type: ScheduleRuleInputDto,
     nullable: true,
-    description: 'Regla de horario en hora CDMX (genera las sesiones, HU-29).',
+    description:
+      'Regla de horario en hora CDMX (genera las sesiones, HU-29). Admite horario distinto por día ' +
+      '(`slots`) o el mismo para todos (`weekdays` + `startTime` + `endTime`).',
   })
   @IsOptional()
   @IsObject()
