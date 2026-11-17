@@ -186,10 +186,12 @@ describe('admin-content.policy', () => {
     ).toBe(false);
   });
 
-  it('imágenes públicas JPG/PNG/WebP ≤ 5 MB', () => {
+  it('imágenes públicas JPG/PNG/WebP ≤ 15 MB', () => {
+    const MB = 1024 * 1024;
     expect(isValidPublicImage({ mimeType: 'image/webp', sizeBytes: 1000 })).toBe(true);
     expect(isValidPublicImage({ mimeType: 'image/gif', sizeBytes: 1000 })).toBe(false);
-    expect(isValidPublicImage({ mimeType: 'image/png', sizeBytes: 6 * 1024 * 1024 })).toBe(false);
+    expect(isValidPublicImage({ mimeType: 'image/png', sizeBytes: 15 * MB })).toBe(true);
+    expect(isValidPublicImage({ mimeType: 'image/png', sizeBytes: 15 * MB + 1 })).toBe(false);
   });
 
   it('prefijos y keys', () => {

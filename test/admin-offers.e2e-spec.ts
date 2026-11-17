@@ -158,6 +158,15 @@ describe('Admin — ofertas y contenido (e2e) — Fase 06', () => {
         sizeBytes: 1000,
       }).expect(422);
       expect(bad.body.code).toBe('ADMIN_UPLOAD_INVALID_FILE');
+      // Límite de imágenes: 15 MB (antes 5 MB).
+      const heavy = await post('/admin/uploads/images', coord, {
+        purpose: 'OFFER_COVER',
+        offerId,
+        fileName: 'portada.png',
+        contentType: 'image/png',
+        sizeBytes: 15 * 1024 * 1024 + 1,
+      }).expect(422);
+      expect(heavy.body.code).toBe('ADMIN_UPLOAD_INVALID_FILE');
 
       const up = await post('/admin/uploads/images', coord, {
         purpose: 'OFFER_COVER',

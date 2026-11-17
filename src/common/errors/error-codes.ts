@@ -1,4 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
+import { BUSINESS_RULES, formatMegabytes } from '../../config/business-rules';
+
+const FILES = BUSINESS_RULES.FILE_LIMITS;
 
 /**
  * Catálogo de códigos de error de la API.
@@ -190,7 +193,7 @@ export const ERROR_CODES = {
   },
   FINAL_PROJECT_INVALID_FILE: {
     status: HttpStatus.UNPROCESSABLE_ENTITY,
-    message: 'El archivo debe ser PDF, DOCX, PPTX o ZIP de máximo 20 MB.',
+    message: `El archivo debe ser PDF, DOCX, PPTX o ZIP de máximo ${formatMegabytes(FILES.FINAL_PROJECT.maxBytes)}.`,
   },
   FINAL_PROJECT_UPLOAD_NOT_FOUND: {
     status: HttpStatus.UNPROCESSABLE_ENTITY,
@@ -224,7 +227,7 @@ export const ERROR_CODES = {
   },
   APPLICATION_INVALID_FILE: {
     status: HttpStatus.UNPROCESSABLE_ENTITY,
-    message: 'El archivo debe ser JPG, PNG o HEIC de máximo 10 MB, o MP4/MOV de máximo 100 MB.',
+    message: `El archivo debe ser JPG, PNG o HEIC de máximo ${formatMegabytes(FILES.EVIDENCE_IMAGE.maxBytes)}, o MP4/MOV de máximo ${formatMegabytes(FILES.EVIDENCE_VIDEO.maxBytes)}.`,
   },
   APPLICATION_TOO_MANY_FILES: {
     status: HttpStatus.UNPROCESSABLE_ENTITY,
@@ -278,7 +281,7 @@ export const ERROR_CODES = {
   },
   PAYMENT_TRANSFER_INVALID_FILE: {
     status: HttpStatus.UNPROCESSABLE_ENTITY,
-    message: 'El comprobante debe ser PDF, JPG o PNG de máximo 5 MB.',
+    message: `El comprobante debe ser PDF, JPG o PNG de máximo ${formatMegabytes(FILES.TRANSFER_RECEIPT.maxBytes)}.`,
   },
   PAYMENT_TRANSFER_UPLOAD_NOT_FOUND: {
     status: HttpStatus.UNPROCESSABLE_ENTITY,

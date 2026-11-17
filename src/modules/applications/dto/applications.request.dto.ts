@@ -17,7 +17,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { PaginationQueryDto } from '../../../common/dto/pagination.dto';
-import { BUSINESS_RULES } from '../../../config/business-rules';
+import { BUSINESS_RULES, formatMegabytes } from '../../../config/business-rules';
 import { ApplicationKind, ApplicationStatus } from '../../../generated/prisma/client';
 import { PhoneDto } from '../../users/dto/user-fields';
 
@@ -271,7 +271,7 @@ export class EvidenceUploadRequestDto {
 
   @ApiProperty({
     example: 2_400_000,
-    description: 'Tamaño en bytes (imágenes ≤ 10 MB; videos ≤ 100 MB).',
+    description: `Tamaño en bytes (imágenes ≤ ${formatMegabytes(R.FILE_LIMITS.EVIDENCE_IMAGE.maxBytes)}; videos ≤ ${formatMegabytes(R.FILE_LIMITS.EVIDENCE_VIDEO.maxBytes)}).`,
   })
   @IsInt()
   @Min(1)

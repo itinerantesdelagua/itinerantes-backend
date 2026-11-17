@@ -313,7 +313,7 @@ pruebas en `payments/policies/` (`payment-amounts`, `installment-collection`, `p
   (webhook `checkout.session.expired` o el job lo cancelan); saldo tras beca → `null` (retiene hasta
   que la postulación vence o se paga; con comprobante pendiente no vence).
 - **Transferencia** (solo México, saldo en MXN, una exhibición): datos bancarios por variables de
-  entorno (`BANK_TRANSFER_*`); comprobante con URL firmada + `head()` (PDF/JPG/PNG ≤ 5 MB, key bajo
+  entorno (`BANK_TRANSFER_*`); comprobante con URL firmada + `head()` (PDF/JPG/PNG ≤ 15 MB, key bajo
   `payments/transfers/{applicationId}/`); "Pendiente de validación" con `setPendingTransfer`
   (reemplazable); `TransfersService.approveTransfer` / `rejectTransfer` listos para la Fase 06 (monto
   recibido ≥ esperado; rechazo con motivo → `markTransferRejected`).

@@ -41,7 +41,7 @@ export function transferReference(applicationFolio: string): string {
   return `EIA ${applicationFolio}`;
 }
 
-/** Tipo y tamaño REALES del comprobante: PDF/JPG/PNG ≤ 5 MB. */
+/** Tipo y tamaño REALES del comprobante: PDF/JPG/PNG ≤ 15 MB (FILE_LIMITS.TRANSFER_RECEIPT). */
 export function isValidTransferProof(file: { mimeType: string; sizeBytes: number }): boolean {
   const limits = BUSINESS_RULES.FILE_LIMITS.TRANSFER_RECEIPT;
   return (

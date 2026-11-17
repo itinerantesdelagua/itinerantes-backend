@@ -11,6 +11,18 @@
 
 const MB = 1024 * 1024;
 
+/**
+ * Tamaño máximo general de los archivos que suben participantes y equipo (comprobantes,
+ * evidencias, imágenes de difusión). Petición del cliente (nov. 2026): de 5 MB a 15 MB. Los
+ * archivos que ya admitían más (proyecto final, materiales del módulo, videos) conservan su límite.
+ */
+const UPLOAD_MAX_BYTES = 15 * MB;
+
+/** "15 MB": tamaño legible para mensajes y documentación (redondeado a MB). */
+export function formatMegabytes(bytes: number): string {
+  return `${Math.round(bytes / MB)} MB`;
+}
+
 export const BUSINESS_RULES = {
   // ---------------------------------------------------------------------------
   // Tiempo
@@ -238,6 +250,8 @@ export const BUSINESS_RULES = {
   // Archivos (límites de carga)
   // ---------------------------------------------------------------------------
   FILE_LIMITS: {
+    /** Límite general (ver UPLOAD_MAX_BYTES); los de abajo lo usan salvo que admitan más. */
+    UPLOAD_MAX_BYTES,
     /** HU-17: entrega de proyecto final — PDF, DOCX, PPTX o ZIP, máx. 20 MB. */
     FINAL_PROJECT: {
       maxBytes: 20 * MB,
@@ -248,9 +262,9 @@ export const BUSINESS_RULES = {
         'application/zip',
       ],
     },
-    /** HU-19: evidencias — imágenes JPG/PNG/HEIC ≤ 10 MB. */
+    /** HU-19: evidencias — imágenes JPG/PNG/HEIC ≤ 15 MB (límite general; antes 10 MB). */
     EVIDENCE_IMAGE: {
-      maxBytes: 10 * MB,
+      maxBytes: UPLOAD_MAX_BYTES,
       mimeTypes: ['image/jpeg', 'image/png', 'image/heic'],
     },
     /** HU-19: evidencias — video MP4/MOV ≤ 100 MB. */
@@ -258,13 +272,16 @@ export const BUSINESS_RULES = {
     /** HU-19: mínimo 1 y máximo 10 archivos de evidencia. */
     EVIDENCE_MIN_FILES: 1,
     EVIDENCE_MAX_FILES: 10,
-    /** HU-23: comprobante de transferencia — PDF/JPG/PNG ≤ 5 MB. */
+    /** HU-23: comprobante de transferencia — PDF/JPG/PNG ≤ 15 MB (límite general). */
     TRANSFER_RECEIPT: {
-      maxBytes: 5 * MB,
+      maxBytes: UPLOAD_MAX_BYTES,
       mimeTypes: ['application/pdf', 'image/jpeg', 'image/png'],
     },
-    /** HU-27: portada de oferta — JPG/PNG/WebP ≤ 5 MB. */
-    OFFER_COVER: { maxBytes: 5 * MB, mimeTypes: ['image/jpeg', 'image/png', 'image/webp'] },
+    /** HU-27: portada, carrusel y foto de docente — JPG/PNG/WebP ≤ 15 MB (límite general). */
+    OFFER_COVER: {
+      maxBytes: UPLOAD_MAX_BYTES,
+      mimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
+    },
     /** HU-28: recursos del módulo — PDF/PPTX (presentación) o PDF/DOCX/EPUB (lecturas) ≤ 50 MB. */
     MODULE_RESOURCE: {
       maxBytes: 50 * MB,

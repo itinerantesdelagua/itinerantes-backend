@@ -213,13 +213,13 @@ describe('submissionIssues (HU-19 / HU-20)', () => {
   });
 });
 
-describe('evidencias (HU-19: JPG/PNG/HEIC ≤ 10 MB, MP4/MOV ≤ 100 MB)', () => {
+describe('evidencias (HU-19: JPG/PNG/HEIC ≤ 15 MB, MP4/MOV ≤ 100 MB)', () => {
   it('tipo y tamaño por medio', () => {
     expect(evidenceMediaType('image/heic')).toBe('IMAGE');
     expect(evidenceMediaType('video/quicktime')).toBe('VIDEO');
     expect(evidenceMediaType('application/pdf')).toBeNull();
-    expect(isValidEvidenceFile({ mimeType: 'image/jpeg', sizeBytes: 10 * MB })).toBe(true);
-    expect(isValidEvidenceFile({ mimeType: 'image/jpeg', sizeBytes: 10 * MB + 1 })).toBe(false);
+    expect(isValidEvidenceFile({ mimeType: 'image/jpeg', sizeBytes: 15 * MB })).toBe(true);
+    expect(isValidEvidenceFile({ mimeType: 'image/jpeg', sizeBytes: 15 * MB + 1 })).toBe(false);
     expect(isValidEvidenceFile({ mimeType: 'video/mp4', sizeBytes: 100 * MB })).toBe(true);
     expect(isValidEvidenceFile({ mimeType: 'video/mp4', sizeBytes: 100 * MB + 1 })).toBe(false);
     expect(isValidEvidenceFile({ mimeType: 'image/png', sizeBytes: 0 })).toBe(false);

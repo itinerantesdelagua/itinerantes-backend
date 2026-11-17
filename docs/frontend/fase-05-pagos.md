@@ -235,7 +235,7 @@ const { data: payment } = await api.POST('/api/v1/me/payments/transfers', {
 // payment.status === 'PENDING_VALIDATION'
 ```
 
-- PDF/JPG/PNG ≤ 5 MB (el backend verifica tipo y tamaño REALES al confirmar).
+- PDF/JPG/PNG ≤ 15 MB (el backend verifica tipo y tamaño REALES al confirmar).
 - `declaredAmountCents` es lo que la persona declara (informativo); el saldo esperado lo calcula el
   servidor y el equipo captura el monto recibido al validar.
 - Mientras esté "Pendiente de validación", enviar otro comprobante **reemplaza** el anterior (mismo
@@ -248,7 +248,7 @@ const { data: payment } = await api.POST('/api/v1/me/payments/transfers', {
 
 | Error | HTTP | UI |
 |---|---|---|
-| `PAYMENT_TRANSFER_INVALID_FILE` | 422 | "El comprobante debe ser PDF, JPG o PNG de máximo 5 MB" |
+| `PAYMENT_TRANSFER_INVALID_FILE` | 422 | "El comprobante debe ser PDF, JPG o PNG de máximo 15 MB" |
 | `PAYMENT_TRANSFER_UPLOAD_NOT_FOUND` | 422 | El PUT no llegó: reintentar la subida |
 | `PAYMENT_TRANSFER_NOT_AVAILABLE` | 422 | `meta.reason` (`NOT_MEXICO`, `CURRENCY_NOT_MXN`, `NOT_A_BALANCE`, `NOT_CONFIGURED`) |
 | `PAYMENT_BALANCE_NOT_DUE` | 409 | La postulación ya no espera pago (`meta.status`): recarga |

@@ -24,7 +24,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { PaginationQueryDto } from '../../../../common/dto/pagination.dto';
-import { BUSINESS_RULES } from '../../../../config/business-rules';
+import { BUSINESS_RULES, formatMegabytes } from '../../../../config/business-rules';
 import {
   CalendarCategory,
   OfferModality,
@@ -656,7 +656,10 @@ export class ImageUploadUrlRequestDto {
   @MaxLength(120)
   contentType!: string;
 
-  @ApiProperty({ example: 345_678, description: 'Bytes (máx. 5 MB).' })
+  @ApiProperty({
+    example: 345_678,
+    description: `Bytes (máx. ${formatMegabytes(R.FILE_LIMITS.OFFER_COVER.maxBytes)}).`,
+  })
   @Type(() => Number)
   @IsInt()
   @Min(1)

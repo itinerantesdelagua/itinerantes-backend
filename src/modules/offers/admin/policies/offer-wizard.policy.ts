@@ -1,4 +1,4 @@
-import { BUSINESS_RULES } from '../../../../config/business-rules';
+import { BUSINESS_RULES, formatMegabytes } from '../../../../config/business-rules';
 import { isWhatsappGroupUrl } from '../../../../common/utils/urls';
 import type {
   OfferModality,
@@ -136,7 +136,7 @@ function generalIssues(o: WizardOffer): WizardIssue[] {
     issues.push({
       field: 'coverImageKey',
       code: 'REQUIRED',
-      message: 'Sube la portada (JPG, PNG o WebP de máximo 5 MB).',
+      message: `Sube la portada (JPG, PNG o WebP de máximo ${formatMegabytes(R.FILE_LIMITS.OFFER_COVER.maxBytes)}).`,
     });
   }
   if (o.modality === 'IN_PERSON') {

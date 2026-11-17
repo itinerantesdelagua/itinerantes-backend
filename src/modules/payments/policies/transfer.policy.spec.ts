@@ -17,12 +17,12 @@ describe('transfer.policy (HU-23/33)', () => {
     expect(transferAvailability({ ...ok, bankConfigured: false }).reason).toBe('NOT_CONFIGURED');
   });
 
-  it('comprobante PDF/JPG/PNG ≤ 5 MB', () => {
+  it('comprobante PDF/JPG/PNG ≤ 15 MB', () => {
+    const MB = 1024 * 1024;
     expect(isValidTransferProof({ mimeType: 'application/pdf', sizeBytes: 1000 })).toBe(true);
-    expect(isValidTransferProof({ mimeType: 'image/png', sizeBytes: 5 * 1024 * 1024 })).toBe(true);
-    expect(isValidTransferProof({ mimeType: 'image/png', sizeBytes: 5 * 1024 * 1024 + 1 })).toBe(
-      false,
-    );
+    expect(isValidTransferProof({ mimeType: 'application/pdf', sizeBytes: 12 * MB })).toBe(true);
+    expect(isValidTransferProof({ mimeType: 'image/png', sizeBytes: 15 * MB })).toBe(true);
+    expect(isValidTransferProof({ mimeType: 'image/png', sizeBytes: 15 * MB + 1 })).toBe(false);
     expect(isValidTransferProof({ mimeType: 'image/heic', sizeBytes: 1000 })).toBe(false);
     expect(isValidTransferProof({ mimeType: 'application/pdf', sizeBytes: 0 })).toBe(false);
   });

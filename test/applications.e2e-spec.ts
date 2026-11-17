@@ -403,9 +403,15 @@ describe('Postulaciones (e2e) — Fase 04', () => {
       const heavy = await post(`${base}/upload-url`, ana, {
         fileName: 'a.jpg',
         contentType: 'image/jpeg',
-        sizeBytes: 10 * MB + 1,
+        sizeBytes: 15 * MB + 1,
       }).expect(422);
       expect(heavy.body.code).toBe('APPLICATION_INVALID_FILE');
+      // Límite de imágenes: 15 MB (antes 10 MB).
+      await post(`${base}/upload-url`, ana, {
+        fileName: 'foto.jpg',
+        contentType: 'image/jpeg',
+        sizeBytes: 15 * MB,
+      }).expect(200);
 
       const url = await post(`${base}/upload-url`, ana, {
         fileName: 'Video Territorio.MP4',

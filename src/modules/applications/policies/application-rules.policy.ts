@@ -291,7 +291,7 @@ export function submissionIssues(input: SubmissionInput): FieldIssue[] {
 }
 
 // -------------------------------------------------------------------------------------------------
-// Evidencias (HU-19: JPG/PNG/HEIC ≤ 10 MB, MP4/MOV ≤ 100 MB, máx. 10 archivos)
+// Evidencias (HU-19: JPG/PNG/HEIC ≤ 15 MB, MP4/MOV ≤ 100 MB, máx. 10 archivos)
 // -------------------------------------------------------------------------------------------------
 
 export type EvidenceMediaType = 'IMAGE' | 'VIDEO';

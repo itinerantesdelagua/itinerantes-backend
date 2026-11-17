@@ -13,6 +13,7 @@ import type { PaginatedResponseDto } from '../../common/dto/pagination.dto';
 import { uuidOr404 } from '../../common/pipes/uuid-or-404.pipe';
 import { ApiErrorResponses } from '../../common/swagger/api-error-responses.decorator';
 import { ApiPaginatedResponse } from '../../common/swagger/api-paginated-response.decorator';
+import { BUSINESS_RULES, formatMegabytes } from '../../config/business-rules';
 import { BEARER_AUTH_NAME } from '../../config/openapi';
 import { AccessUrlDto } from '../enrollments/dto/portal-shared.dto';
 import { ApplicationsService } from './applications.service';
@@ -34,6 +35,11 @@ import {
 
 const APPLICATION_ID = uuidOr404('La postulación no existe.');
 const DOCUMENT_ID = uuidOr404('El archivo no existe.');
+const { EVIDENCE_IMAGE, EVIDENCE_VIDEO } = BUSINESS_RULES.FILE_LIMITS;
+/** Límites de evidencias para la documentación ("JPG/PNG/HEIC ≤ 15 MB; MP4/MOV ≤ 100 MB"). */
+const EVIDENCE_LIMITS =
+  `JPG/PNG/HEIC ≤ ${formatMegabytes(EVIDENCE_IMAGE.maxBytes)}; ` +
+  `MP4/MOV ≤ ${formatMegabytes(EVIDENCE_VIDEO.maxBytes)}`;
 const OWN_NOTE =
   ' Postulación ajena, inexistente o id mal formado → 404 `NOT_FOUND` (nunca se revela que existe).';
 const EDIT_NOTE =
@@ -252,7 +258,7 @@ export class ApplicationsController {
   @ApiOperation({
     summary: 'Evidencia: pedir URL de carga',
     description:
-      'HU-19/20 paso 1/3: valida tipo y tamaño declarados (JPG/PNG/HEIC ≤ 10 MB; MP4/MOV ≤ 100 MB; ' +
+      `HU-19/20 paso 1/3: valida tipo y tamaño declarados (${EVIDENCE_LIMITS}; ` +
       'máx. 10 archivos) y devuelve una URL firmada para `PUT` directo a storage con el header ' +
       '`Content-Type` indicado (muestra progreso con XHR). Paso 2: `PUT uploadUrl`. Paso 3: ' +
       '`POST …/documents { key }`. Errores: `APPLICATION_INVALID_FILE`, `APPLICATION_TOO_MANY_FILES` ' +

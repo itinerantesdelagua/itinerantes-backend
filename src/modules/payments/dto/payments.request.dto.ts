@@ -16,7 +16,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { PaginationQueryDto } from '../../../common/dto/pagination.dto';
-import { BUSINESS_RULES } from '../../../config/business-rules';
+import { BUSINESS_RULES, formatMegabytes } from '../../../config/business-rules';
 import { PaymentStatus } from '../../../generated/prisma/client';
 
 const R = BUSINESS_RULES;
@@ -101,7 +101,10 @@ export class TransferUploadUrlRequestDto {
   @Matches(/^[\w.+-]+\/[\w.+-]+$/, { message: 'Tipo de archivo no válido.' })
   contentType!: string;
 
-  @ApiProperty({ example: 350_000, description: 'Tamaño en bytes (≤ 5 MB).' })
+  @ApiProperty({
+    example: 350_000,
+    description: `Tamaño en bytes (≤ ${formatMegabytes(R.FILE_LIMITS.TRANSFER_RECEIPT.maxBytes)}).`,
+  })
   @IsInt()
   @Min(1)
   sizeBytes!: number;

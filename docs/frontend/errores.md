@@ -122,7 +122,7 @@ Guía de pantallas: [`fase-04-postulaciones.md`](fase-04-postulaciones.md).
 | `APPLICATION_NOT_EDITABLE` | 409 | Tu postulación ya fue enviada y no se puede modificar. | `status` | Editar, adjuntar, descartar o reenviar una postulación ya enviada → recargar el detalle. |
 | `APPLICATION_INCOMPLETE` | 422 | Completa los campos obligatorios para enviar tu postulación. | — | Enviar con pendientes: `details[]` por campo (`REQUIRED`, `MIN_LENGTH`, `MAX_LENGTH`, `MIN_FILES`, `MUST_ACCEPT`, `SCHOLARSHIP_TYPE_NOT_ENABLED`). |
 | `APPLICATION_NOT_ELIGIBLE` | 422 | No cumples con la elegibilidad de esta convocatoria. | `reasons`, `eligibilityText` | `COUNTRY_NOT_ELIGIBLE` (país del perfil) / `TRAVEL_REQUIRED` ("No" a viajar) (HU-20) → mostrar el motivo; no se puede enviar. |
-| `APPLICATION_INVALID_FILE` | 422 | El archivo debe ser JPG, PNG o HEIC de máximo 10 MB, o MP4/MOV de máximo 100 MB. | — | Tipo o tamaño no permitido (declarado o real) de una evidencia. |
+| `APPLICATION_INVALID_FILE` | 422 | El archivo debe ser JPG, PNG o HEIC de máximo 15 MB, o MP4/MOV de máximo 100 MB. | — | Tipo o tamaño no permitido (declarado o real) de una evidencia. |
 | `APPLICATION_TOO_MANY_FILES` | 422 | Puedes adjuntar como máximo 10 archivos. | `max` | Límite de evidencias. |
 | `APPLICATION_UPLOAD_NOT_FOUND` | 422 | No encontramos el archivo subido. Vuelve a subirlo. | — | Se confirmó una `key` que no existe en storage o no es de esa postulación. |
 | `APPLICATION_INVALID_TRANSITION` | 409 | Tu postulación no está en un estado que permita esta acción. | `status`, `to` | Confirmar participación cuando la postulación no lo espera (o acción concurrente) → recargar. |
@@ -148,7 +148,7 @@ Guía de pantallas: [`fase-05-pagos.md`](fase-05-pagos.md). Pagos o planes ajeno
 | `PAYMENT_INSTALLMENTS_NOT_AVAILABLE` | 422 | El número de cuotas elegido no está disponible para esta oferta. | `allowed` | Cuotas fuera de 2–4, del máximo de la oferta o con la última después del fin. |
 | `PAYMENT_TRANSFER_NOT_AVAILABLE` | 422 | La transferencia bancaria no está disponible para este pago. | `reason` | `NOT_MEXICO`, `CURRENCY_NOT_MXN`, `NOT_A_BALANCE`, `NOT_CONFIGURED`. |
 | `PAYMENT_TRANSFER_PENDING` | 409 | Tienes un comprobante de transferencia en validación. | — | Pagar con tarjeta mientras hay un comprobante "Pendiente de validación". |
-| `PAYMENT_TRANSFER_INVALID_FILE` | 422 | El comprobante debe ser PDF, JPG o PNG de máximo 5 MB. | — | Tipo o tamaño no permitido (declarado o real). |
+| `PAYMENT_TRANSFER_INVALID_FILE` | 422 | El comprobante debe ser PDF, JPG o PNG de máximo 15 MB. | — | Tipo o tamaño no permitido (declarado o real). |
 | `PAYMENT_TRANSFER_UPLOAD_NOT_FOUND` | 422 | No encontramos el comprobante subido. Vuelve a subirlo. | — | Se confirmó una `key` que no existe o no es de esa postulación. |
 | `PAYMENT_TRANSFER_AMOUNT_MISMATCH` | 422 | El monto recibido es menor al saldo esperado: solo se puede rechazar. | `differenceCents`, `expectedCents` | Panel (Fase 06, HU-33) al validar una transferencia. |
 | `PAYMENT_INVALID_STATE` | 409 | El pago no está en un estado que permita esta acción. | `status` | Cancelar un checkout ya cerrado, [Pagar ahora] sin cuotas fallidas, [Actualizar tarjeta] de un plan no vigente → recargar. |
@@ -185,7 +185,7 @@ son UUID o inexistentes → `404 NOT_FOUND`.
 | `OFFER_INVALID_STATE` | 409 | La oferta no está en un estado que permita esta acción. | `publicationStatus` | Publicar/archivar/despublicar/borrar desde un estado inválido; cerrar inscripciones ya cerradas (HU-32). Recargar. |
 | `OFFER_NOT_MOODLE` | 422 | Esta acción solo aplica a ofertas de origen Moodle. | — | Lista de correos / códigos Moodle en una oferta NAS. |
 | `TEACHER_IN_USE` | 409 | El docente está asignado a ofertas o módulos: quítalo de ellos antes de borrarlo. | — | Borrar docente. |
-| `ADMIN_UPLOAD_INVALID_FILE` | 422 | El archivo no tiene un formato o tamaño permitido. | — | Imagen (JPG/PNG/WebP ≤ 5 MB) o material (PDF/PPTX/DOCX/EPUB ≤ 50 MB) no permitido (declarado o real). Error en ese ítem, reintentar. |
+| `ADMIN_UPLOAD_INVALID_FILE` | 422 | El archivo no tiene un formato o tamaño permitido. | — | Imagen (JPG/PNG/WebP ≤ 15 MB) o material (PDF/PPTX/DOCX/EPUB ≤ 50 MB) no permitido (declarado o real). Error en ese ítem, reintentar. |
 | `ADMIN_UPLOAD_NOT_FOUND` | 422 | No encontramos el archivo subido. Vuelve a subirlo. | — | Se confirmó una `key` que no existe en storage o no corresponde. |
 | `SESSION_GENERATION_BLOCKED` | 422 | No se pueden crear las sesiones: revisa los conflictos y las reglas de duración. | `conflictCount`, `violations` | HU-29 "Crear sesiones" con conflictos, 0 sesiones o curso > 9 h (la vista previa ya lo anticipa con `canConfirm=false`). |
 | `SESSION_CONFLICT` | 409 | Ya existe una sesión de esta oferta que se traslapa con ese horario. | — | Sesión manual o reprogramación sobre otra sesión. |

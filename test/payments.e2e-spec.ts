@@ -575,6 +575,20 @@ describe('Pagos (e2e) — Fase 05', () => {
         sizeBytes: 1000,
       }).expect(422);
       expect(invalid.body.code).toBe('PAYMENT_TRANSFER_INVALID_FILE');
+      // Límite del comprobante: 15 MB (antes 5 MB).
+      const heavy = await post('/me/payments/transfers/upload-url', beto, {
+        applicationId,
+        fileName: 'comprobante.pdf',
+        contentType: 'application/pdf',
+        sizeBytes: 15 * 1024 * 1024 + 1,
+      }).expect(422);
+      expect(heavy.body.code).toBe('PAYMENT_TRANSFER_INVALID_FILE');
+      await post('/me/payments/transfers/upload-url', beto, {
+        applicationId,
+        fileName: 'comprobante.pdf',
+        contentType: 'application/pdf',
+        sizeBytes: 12 * 1024 * 1024,
+      }).expect(201);
 
       const upload = async (name: string) => {
         const u = await post('/me/payments/transfers/upload-url', beto, {

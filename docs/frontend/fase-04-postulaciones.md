@@ -125,7 +125,7 @@ Enviar un campo del otro tipo → `400` con `details[].code = NOT_APPLICABLE`.
 | `canTravel` | — | **Obligatorio si `form.eligibility.requiresTravel`**; `false` bloquea el envío | Sí/No |
 | `evidenceLinks[]` | Opcional | Opcional | Máx. 5 URLs `https://…` (reemplaza la lista) |
 | `termsAccepted` | **Debe ser `true`** | **Debe ser `true`** (incluye aceptar la entrevista por Zoom) | |
-| Archivos (`documents`) | **Mín. 1**, máx. 10 | Opcionales, máx. 10 | JPG/PNG/HEIC ≤ 10 MB; MP4/MOV ≤ 100 MB |
+| Archivos (`documents`) | **Mín. 1**, máx. 10 | Opcionales, máx. 10 | JPG/PNG/HEIC ≤ 15 MB; MP4/MOV ≤ 100 MB |
 
 Datos de contacto (`applicant`: nombre, correo **no editable**, país, estado, municipio, moneda) vienen
 del perfil (HU-14). Para cambiarlos, la persona edita su perfil; el backend vuelve a tomarlos al guardar
@@ -187,7 +187,7 @@ const { data: doc } = await api.POST('/api/v1/me/applications/{id}/documents', {
 
 | Error | UI |
 |---|---|
-| `APPLICATION_INVALID_FILE` (422) | "El archivo debe ser JPG, PNG o HEIC de máximo 10 MB, o MP4/MOV de máximo 100 MB" (sin perder lo capturado) |
+| `APPLICATION_INVALID_FILE` (422) | "El archivo debe ser JPG, PNG o HEIC de máximo 15 MB, o MP4/MOV de máximo 100 MB" (sin perder lo capturado) |
 | `APPLICATION_TOO_MANY_FILES` (422, `meta.max`) | "Máximo 10 archivos" |
 | `APPLICATION_UPLOAD_NOT_FOUND` (422) | El PUT no llegó o falló: reintentar la subida |
 

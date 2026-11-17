@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AppException } from '../../../common/errors/app.exception';
 import { isHttpsUrl } from '../../../common/utils/urls';
-import { BUSINESS_RULES } from '../../../config/business-rules';
+import { BUSINESS_RULES, formatMegabytes } from '../../../config/business-rules';
 import { PrismaService } from '../../../infra/prisma/prisma.service';
 import { StorageService } from '../../../infra/storage/storage.service';
 import type { ImageUploadUrlDto, ImageUploadUrlRequestDto } from './dto/admin-offers.dto';
@@ -77,7 +77,7 @@ export class AdminImagesService {
 
 function invalidFile(): AppException {
   return new AppException('ADMIN_UPLOAD_INVALID_FILE', {
-    message: 'La imagen debe ser JPG, PNG o WebP de máximo 5 MB.',
+    message: `La imagen debe ser JPG, PNG o WebP de máximo ${formatMegabytes(LIMIT.maxBytes)}.`,
     meta: { allowedTypes: LIMIT.mimeTypes, maxBytes: LIMIT.maxBytes },
   });
 }

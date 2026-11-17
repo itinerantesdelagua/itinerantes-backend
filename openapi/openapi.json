@@ -8829,7 +8829,7 @@
     },
     "/api/v1/admin/uploads/images": {
       "post": {
-        "description": "HU-27: portada (`OFFER_COVER`), carrusel (`OFFER_CAROUSEL`) o foto de docente (`TEACHER_PHOTO`). JPG/PNG/WebP ≤ 5 MB (si no → 422 `ADMIN_UPLOAD_INVALID_FILE`). Flujo: pide la URL → `PUT {uploadUrl}` con el `Content-Type` indicado → guarda la `key` en el paso 1 o en el docente. Las imágenes van bajo `public/` (bucket público si existe `STORAGE_PUBLIC_BUCKET`, servidas con `STORAGE_PUBLIC_BASE_URL`). Permiso `offers.write`.",
+        "description": "HU-27: portada (`OFFER_COVER`), carrusel (`OFFER_CAROUSEL`) o foto de docente (`TEACHER_PHOTO`). JPG/PNG/WebP ≤ 15 MB (si no → 422 `ADMIN_UPLOAD_INVALID_FILE`). Flujo: pide la URL → `PUT {uploadUrl}` con el `Content-Type` indicado → guarda la `key` en el paso 1 o en el docente. Las imágenes van bajo `public/` (bucket público si existe `STORAGE_PUBLIC_BUCKET`, servidas con `STORAGE_PUBLIC_BASE_URL`). Permiso `offers.write`.",
         "operationId": "AdminUploads_imageUploadUrl",
         "parameters": [],
         "requestBody": {
@@ -12120,7 +12120,7 @@
     },
     "/api/v1/me/applications/{id}/documents/upload-url": {
       "post": {
-        "description": "HU-19/20 paso 1/3: valida tipo y tamaño declarados (JPG/PNG/HEIC ≤ 10 MB; MP4/MOV ≤ 100 MB; máx. 10 archivos) y devuelve una URL firmada para `PUT` directo a storage con el header `Content-Type` indicado (muestra progreso con XHR). Paso 2: `PUT uploadUrl`. Paso 3: `POST …/documents { key }`. Errores: `APPLICATION_INVALID_FILE`, `APPLICATION_TOO_MANY_FILES` (`meta.max`). Solo en borrador (`APPLICATION_NOT_EDITABLE` 409 si ya se envió) y con la convocatoria abierta (`APPLICATION_WINDOW_CLOSED` 422: el borrador queda en solo lectura). Postulación ajena, inexistente o id mal formado → 404 `NOT_FOUND` (nunca se revela que existe).",
+        "description": "HU-19/20 paso 1/3: valida tipo y tamaño declarados (JPG/PNG/HEIC ≤ 15 MB; MP4/MOV ≤ 100 MB; máx. 10 archivos) y devuelve una URL firmada para `PUT` directo a storage con el header `Content-Type` indicado (muestra progreso con XHR). Paso 2: `PUT uploadUrl`. Paso 3: `POST …/documents { key }`. Errores: `APPLICATION_INVALID_FILE`, `APPLICATION_TOO_MANY_FILES` (`meta.max`). Solo en borrador (`APPLICATION_NOT_EDITABLE` 409 si ya se envió) y con la convocatoria abierta (`APPLICATION_WINDOW_CLOSED` 422: el borrador queda en solo lectura). Postulación ajena, inexistente o id mal formado → 404 `NOT_FOUND` (nunca se revela que existe).",
         "operationId": "Applications_uploadUrl",
         "parameters": [
           {
@@ -12267,7 +12267,7 @@
                     "value": {
                       "statusCode": 422,
                       "code": "APPLICATION_INVALID_FILE",
-                      "message": "El archivo debe ser JPG, PNG o HEIC de máximo 10 MB, o MP4/MOV de máximo 100 MB.",
+                      "message": "El archivo debe ser JPG, PNG o HEIC de máximo 15 MB, o MP4/MOV de máximo 100 MB.",
                       "requestId": "3f1c2a9e-5b7d-4c1e-9f0a-2d8b6e4c1a7f"
                     }
                   },
@@ -12466,7 +12466,7 @@
                     "value": {
                       "statusCode": 422,
                       "code": "APPLICATION_INVALID_FILE",
-                      "message": "El archivo debe ser JPG, PNG o HEIC de máximo 10 MB, o MP4/MOV de máximo 100 MB.",
+                      "message": "El archivo debe ser JPG, PNG o HEIC de máximo 15 MB, o MP4/MOV de máximo 100 MB.",
                       "requestId": "3f1c2a9e-5b7d-4c1e-9f0a-2d8b6e4c1a7f"
                     }
                   },
@@ -23021,7 +23021,7 @@
     },
     "/api/v1/me/payments/transfers/upload-url": {
       "post": {
-        "description": "HU-23 (solo México, saldo en MXN, antes de la fecha límite): valida tipo y tamaño declarados (PDF/JPG/PNG ≤ 5 MB) y devuelve una URL firmada para `PUT` directo a storage con el `Content-Type` indicado.",
+        "description": "HU-23 (solo México, saldo en MXN, antes de la fecha límite): valida tipo y tamaño declarados (PDF/JPG/PNG ≤ 15 MB) y devuelve una URL firmada para `PUT` directo a storage con el `Content-Type` indicado.",
         "operationId": "Payments_transferUploadUrl",
         "parameters": [],
         "requestBody": {
@@ -23158,7 +23158,7 @@
                     "value": {
                       "statusCode": 422,
                       "code": "PAYMENT_TRANSFER_INVALID_FILE",
-                      "message": "El comprobante debe ser PDF, JPG o PNG de máximo 5 MB.",
+                      "message": "El comprobante debe ser PDF, JPG o PNG de máximo 15 MB.",
                       "requestId": "3f1c2a9e-5b7d-4c1e-9f0a-2d8b6e4c1a7f"
                     }
                   },
@@ -23347,7 +23347,7 @@
                     "value": {
                       "statusCode": 422,
                       "code": "PAYMENT_TRANSFER_INVALID_FILE",
-                      "message": "El comprobante debe ser PDF, JPG o PNG de máximo 5 MB.",
+                      "message": "El comprobante debe ser PDF, JPG o PNG de máximo 15 MB.",
                       "requestId": "3f1c2a9e-5b7d-4c1e-9f0a-2d8b6e4c1a7f"
                     }
                   },
@@ -33402,7 +33402,7 @@
           "sizeBytes": {
             "type": "number",
             "example": 345678,
-            "description": "Bytes (máx. 5 MB)."
+            "description": "Bytes (máx. 15 MB)."
           }
         },
         "required": [
@@ -35820,7 +35820,7 @@
           "sizeBytes": {
             "type": "number",
             "example": 2400000,
-            "description": "Tamaño en bytes (imágenes ≤ 10 MB; videos ≤ 100 MB)."
+            "description": "Tamaño en bytes (imágenes ≤ 15 MB; videos ≤ 100 MB)."
           }
         },
         "required": [
@@ -42189,7 +42189,7 @@
           "sizeBytes": {
             "type": "number",
             "example": 350000,
-            "description": "Tamaño en bytes (≤ 5 MB)."
+            "description": "Tamaño en bytes (≤ 15 MB)."
           }
         },
         "required": [

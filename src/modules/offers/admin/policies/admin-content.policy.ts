@@ -31,7 +31,7 @@ export function isValidModuleResourceFile(
   );
 }
 
-/** Imágenes de difusión (portada, carrusel, foto de docente): JPG/PNG/WebP ≤ 5 MB (HU-27). */
+/** Imágenes de difusión (portada, carrusel, foto de docente): JPG/PNG/WebP ≤ 15 MB (HU-27, FILE_LIMITS.OFFER_COVER). */
 export function isValidPublicImage(file: { mimeType: string; sizeBytes: number }): boolean {
   const limit = BUSINESS_RULES.FILE_LIMITS.OFFER_COVER;
   return (

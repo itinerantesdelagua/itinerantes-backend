@@ -23,6 +23,7 @@ import type { PaginatedResponseDto } from '../../common/dto/pagination.dto';
 import { uuidOr404 } from '../../common/pipes/uuid-or-404.pipe';
 import { ApiErrorResponses } from '../../common/swagger/api-error-responses.decorator';
 import { ApiPaginatedResponse } from '../../common/swagger/api-paginated-response.decorator';
+import { BUSINESS_RULES, formatMegabytes } from '../../config/business-rules';
 import { BEARER_AUTH_NAME } from '../../config/openapi';
 import { AccessUrlDto } from '../enrollments/dto/portal-shared.dto';
 import { CheckoutService } from './checkout.service';
@@ -49,6 +50,8 @@ import { TransfersService } from './transfers.service';
 
 const PAYMENT_ID = uuidOr404('El pago no existe.');
 const PLAN_ID = uuidOr404('El plan no existe.');
+/** Tamaño máximo del comprobante, para la documentación ("15 MB"). */
+const PROOF_MAX = formatMegabytes(BUSINESS_RULES.FILE_LIMITS.TRANSFER_RECEIPT.maxBytes);
 const OWN = ' Pago/plan ajeno, inexistente o id mal formado → 404 `NOT_FOUND` (HU-26).';
 
 @ApiTags('Pagos')
@@ -248,7 +251,8 @@ export class PaymentsController {
     summary: 'Comprobante de transferencia, paso 1: URL de carga',
     description:
       'HU-23 (solo México, saldo en MXN, antes de la fecha límite): valida tipo y tamaño declarados ' +
-      '(PDF/JPG/PNG ≤ 5 MB) y devuelve una URL firmada para `PUT` directo a storage con el ' +
+      `(PDF/JPG/PNG ≤ ${PROOF_MAX}) y devuelve` +
+      ' una URL firmada para `PUT` directo a storage con el ' +
       '`Content-Type` indicado.',
   })
   @ApiCreatedResponse({ type: TransferUploadUrlDto })

@@ -227,7 +227,7 @@ horas"), `DIPLOMA_HOURS_MISMATCH` ("Los diplomados deben sumar 60 horas").
 ### Imágenes (portada, carrusel, foto de docente)
 
 1. `POST /admin/uploads/images { purpose: OFFER_COVER | OFFER_CAROUSEL | TEACHER_PHOTO, offerId?, fileName,
-   contentType, sizeBytes }` → `{ uploadUrl, method: "PUT", headers, key, expiresAt }`. JPG/PNG/WebP ≤ 5 MB
+   contentType, sizeBytes }` → `{ uploadUrl, method: "PUT", headers, key, expiresAt }`. JPG/PNG/WebP ≤ 15 MB
    (si no → 422 `ADMIN_UPLOAD_INVALID_FILE`).
 2. `PUT {uploadUrl}` con el `Content-Type` indicado.
 3. Envía la `key` en el paso 1 (`coverImageKey`, `carouselImageKeys[]`) o en el docente (`photoKey`). El

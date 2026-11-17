@@ -14,6 +14,7 @@ import type { AdminUser } from '../../../common/guards/permissions.guard';
 import { uuidOr404 } from '../../../common/pipes/uuid-or-404.pipe';
 import { ApiErrorResponses } from '../../../common/swagger/api-error-responses.decorator';
 import { ApiPaginatedResponse } from '../../../common/swagger/api-paginated-response.decorator';
+import { BUSINESS_RULES, formatMegabytes } from '../../../config/business-rules';
 import { BEARER_AUTH_NAME } from '../../../config/openapi';
 import { Permission } from '../../../config/permissions';
 import { AdminImagesService } from './admin-images.service';
@@ -35,6 +36,8 @@ import {
 } from './dto/admin-offers.dto';
 
 const OFFER_ID = uuidOr404('La oferta no existe.');
+/** Tamaño máximo de las imágenes de difusión, para la documentación ("15 MB"). */
+const IMAGE_MAX = formatMegabytes(BUSINESS_RULES.FILE_LIMITS.OFFER_COVER.maxBytes);
 const STEP =
   'Guarda SOLO los campos del paso como borrador (autoguardado: se aceptan datos incompletos; ' +
   'solo se rechaza un formato inválido con 400). Devuelve el detalle con `wizard` recalculado: ' +
@@ -336,7 +339,8 @@ export class AdminUploadsController {
     summary: 'URL firmada para subir una imagen de difusión',
     description:
       'HU-27: portada (`OFFER_COVER`), carrusel (`OFFER_CAROUSEL`) o foto de docente ' +
-      '(`TEACHER_PHOTO`). JPG/PNG/WebP ≤ 5 MB (si no → 422 `ADMIN_UPLOAD_INVALID_FILE`). Flujo: ' +
+      `(\`TEACHER_PHOTO\`). JPG/PNG/WebP ≤ ${IMAGE_MAX} (si no → 422 \`ADMIN_UPLOAD_INVALID_FILE\`). ` +
+      'Flujo: ' +
       'pide la URL → `PUT {uploadUrl}` con el `Content-Type` indicado → guarda la `key` en el paso 1 ' +
       'o en el docente. Las imágenes van bajo `public/` (bucket público si existe ' +
       '`STORAGE_PUBLIC_BUCKET`, servidas con `STORAGE_PUBLIC_BASE_URL`). Permiso `offers.write`.',
